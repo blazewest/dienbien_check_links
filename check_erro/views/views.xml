@@ -1,0 +1,58 @@
+<odoo>
+    <record id="view_website_status_form" model="ir.ui.view">
+        <field name="name">website.status.form</field>
+        <field name="model">website.status</field>
+        <field name="arch" type="xml">
+            <form string="Website Status">
+                <header>
+                    <button name="check_website_status"
+                        type="object" class="oe_highlight"
+                        string="Check Status">
+
+                    </button>
+                    <button name="send_quick_email"
+                            string="Send Quick Email"
+                            type="object" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="responsible_user_ids" widget="many2many_tags"/>
+                        <field name="bool_limit"/>
+                        <field name="bool_send_zalo" readonly="1"/>
+                        <field name="limit_url" invisible="not bool_limit"/>
+                        <field name="status_code" readonly="1"/>
+                        <field name="status_message" readonly="1"/>
+                        <field name="qty_links" readonly="1"/>
+                        <field name="qty_status_true" readonly="1"/>
+                        <field name="qty_status_false" readonly="1"/>
+                        <field name="status_links" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_website_status_tree" model="ir.ui.view">
+        <field name="name">website.status.tree</field>
+        <field name="model">website.status</field>
+        <field name="arch" type="xml">
+            <tree string="Website Status">
+                <field name="name"/>
+                <field name="status_code"/>
+                <field name="status_message"/>
+                <field name="qty_status_true"/>
+                <field name="qty_status_false"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_website_status" model="ir.actions.act_window">
+        <field name="name">Website Status</field>
+        <field name="res_model">website.status</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_website_status_root" name="Website Status Checker"/>
+    <menuitem id="menu_website_status" name="Website Status" parent="menu_website_status_root" action="action_website_status"/>
+</odoo>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!--        zalo template-->
+        <record id="zalo_template_view_form" model="ir.ui.view">
+            <field name="name">zalo_template_view_form</field>
+            <field name="model">zalo.template</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="active_template" string="Kích hoạt mẫu" type="object" class="btn-primary"/>
+                    </header>
+                    <sheet>
+                            <field name="active" invisible="1"/>
+                            <div class="ribbon ribbon-top-right" invisible="active == 'false'">
+                                <span class="bg-odoo">Đã Kích Hoạt</span>
+                            </div>
+                        <group>
+                            <field name="name"/>
+                            <field name="id_template"/>
+                            <field name="model"/>
+                        </group>
+                        <notebook colspan="4"  invisible="model == 'false'">
+                            <page string="Nội Dung" colspan="4">
+                                <field name="zalo_fields_ids" >
+                                    <tree string="Nội Dung">
+                                        <field name="root_model_name"/>
+                                        <field name="cumulative_model_field"/>
+                                        <field name="model_field_selector" widget="DynamicModelFieldSelectorChar"/>
+                                        <field name="zalo_parameter"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="zalo_template_view_tree" model="ir.ui.view">
+            <field name="name">zalo_template_view_tree</field>
+            <field name="model">zalo.template</field>
+            <field name="arch" type="xml">
+                <tree default_order="id desc">
+                    <field name="name"/>
+                    <field name="id_template"/>
+                    <field name="model"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="zalo_template_action" model="ir.actions.act_window">
+            <field name="name">Zalo template</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">zalo.template</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">['|',('active', '=', False),('active','=',True)]</field>
+            <field name="view_id" ref="zalo_template_view_tree"/>
+        </record>
+<!--        -->
+<!--        zalo log-->
+        <record id="zalo_log_view_form" model="ir.ui.view">
+            <field name="name">zalo_log_view_form</field>
+            <field name="model">zalo.log</field>
+            <field name="arch" type="xml">
+                <form create="0" edit="0">
+                    <sheet>
+                        <group>
+                            <field name="messenger"/>
+                            <field name="create_date"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="zalo_log_view_tree" model="ir.ui.view">
+            <field name="name">zalo_log_view_tree</field>
+            <field name="model">zalo.log</field>
+            <field name="arch" type="xml">
+                <tree create="0" edit="0" default_order="id desc">
+                    <field name="messenger"/>
+                    <field name="create_date" string="Thời điểm tạo"/>
+                </tree>
+            </field>
+        </record>
+        <record id="zalo_log_action" model="ir.actions.act_window">
+            <field name="name">Zalo log</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">zalo.log</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="zalo_log_view_tree"/>
+        </record>
+<!--        -->
+
+        <menuitem id="zalo_value_3"
+                  name="Message Template"
+                  action="zalo_template_action"
+                  parent="odoo_integrate_zalo.zalo_menu_technical"
+                  sequence="2"/>
+        <menuitem id="zalo_value_4"
+                  name="History log"
+                  action="zalo_log_action"
+                  parent="odoo_integrate_zalo.zalo_menu_technical"
+                  sequence="3"/>
+    </data>
+</odoo>

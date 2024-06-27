@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_zalo_form_message,zalo.application,model_zalo_application,base.group_user,1,1,1,1
+access_zalo_bot_question,zalo.template,model_zalo_template,base.group_user,1,1,1,1
+access_zalo_log,zalo.log,model_zalo_log,base.group_user,1,1,1,1
+access_field_zalo_api,field.zalo.api,model_field_zalo_api,base.group_user,1,1,1,1

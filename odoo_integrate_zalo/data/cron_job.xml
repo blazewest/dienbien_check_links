@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data noupdate="1">
+    <record id="ir_cron_run_get_access_token_to_refresh_token" model="ir.cron">
+        <field name="name">Run Get Access Token to Refresh Token</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="model_id" ref="model_zalo_application"/>
+        <field name="state">code</field>
+        <field name="code">model._run_get_access_token()</field>
+        <field name="nextcall"
+               eval="DateTime.now().replace(hour=6, minute=0, second=1).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="interval_number">1</field>  <!-- Số lần thực hiện -->
+        <field name="interval_type">days</field>  <!-- Đơn vị thời gian -->
+        <field name="numbercall">-1</field>  <!-- -1 để chạy vô hạn -->
+        <field name="doall" eval="True"/>
+    </record>
+</data>

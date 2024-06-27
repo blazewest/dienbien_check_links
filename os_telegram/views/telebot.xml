@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Form view for Telegram Bot -->
+        <record id="view_telegram_bot_form" model="ir.ui.view">
+            <field name="name">telegram.bot.form</field>
+            <field name="model">telegram.bot</field>
+            <field name="arch" type="xml">
+                <form string="Telegram Bot">
+                    <sheet>
+                        <header>
+<!--                            <button name="send_message" type="object"-->
+<!--                            class="oe_highlight" string="test tele"/>-->
+                        </header>
+                        <group>
+<!--                            <field name="name"/>-->
+                            <field name="token" />
+                            <field name="chat_id" />
+                            <a href="https://developers.zalo.me/tools/explorer" target="_blank">Lấy Access Token</a>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree view for Telegram Bot -->
+        <record id="view_telegram_bot_tree" model="ir.ui.view">
+            <field name="name">telegram.bot.tree</field>
+            <field name="model">telegram.bot</field>
+            <field name="arch" type="xml">
+                <tree string="Telegram Bot">
+<!--                    <field name="name"/>-->
+                    <field name="token"/>
+                    <field name="chat_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action for Telegram Bot -->
+        <record id="action_telegram_bot" model="ir.actions.act_window">
+            <field name="name">Telegram Bots</field>
+            <field name="res_model">telegram.bot</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Menu item for Telegram Bot -->
+        <menuitem id="menu_telegram_channels" name="Telegram Channels" sequence="10"
+        />
+
+        <!-- Sub menu item -->
+        <menuitem id="menu_telegram_channel_list" name="Channel List" parent="menu_telegram_channels"
+                  action="action_telegram_bot"/>
+
+<!--        <menuitem id="menu_telegram_bot" name="Telegram Bots" action="action_telegram_bot" parent="base.menu_custom"/>-->
+
+    </data>
+</odoo>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="zalo_application_view_form" model="ir.ui.view">
+            <field name="name">zalo_application_view_form</field>
+            <field name="model">zalo.application</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="get_access_token_to_refresh_token" string="Get Token" type="object"  class="btn-primary" />
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="id_app"/>
+                            <field name="secret_key"/>
+                            <field name="model" widget="many2many_tags"/>
+<!--                            <field name="code"/>-->
+                            <field name="access_token"/>
+                            <field name="refresh_token"/>
+                        </group>
+                        <div>
+                            <a href="https://developers.zalo.me/tools/explorer" target="_blank">Lấy Access Token</a>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="zalo_application_view_tree" model="ir.ui.view">
+            <field name="name">zalo_application_view_tree</field>
+            <field name="model">zalo.application</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="id_app"/>
+                    <field name="secret_key"/>
+                    <field name="model" widget="many2many_tags"/>
+<!--                    <field name="code"/>-->
+                    <field name="access_token"/>
+                    <field name="refresh_token"/>
+                </tree>
+            </field>
+        </record>
+        <record id="zalo_application" model="ir.actions.act_window">
+            <field name="name">zalo application</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">zalo.application</field>
+<!--            <field name="context">{'search_default_follower_id': 1}</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Zalo"
+                    id="zalo_menu_technical"
+                    parent="base.menu_custom"
+                    sequence="10"/>
+
+        <menuitem id="zalo_info_message_menu_answer_3"
+                  name="Zalo Application"
+                  action="zalo_application"
+                  parent="odoo_integrate_zalo.zalo_menu_technical"
+                  sequence="1"/>
+
+    </data>
+</odoo>

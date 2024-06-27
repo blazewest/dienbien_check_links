@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--    widget="DynamicModelFieldSelectorChar" lấy widget ở base.view_server_action_form-->
+    <record id="view_field_zalo_api_form" model="ir.ui.view">
+        <field name="name">field.zalo.api.form</field>
+        <field name="model">field.zalo.api</field>
+        <field name="arch" type="xml">
+            <form string="Fields Zalo">
+                <group string="Model Fields" col="1">
+                    <field name="root_model_name" invisible="1"/>
+                    <field name="cumulative_model_field" nolabel="1"/>
+                    <field name="model_field_selector" widget="DynamicModelFieldSelectorChar"
+                           options="{'model': 'root_model_name'}"/>
+                    <field name="zalo_parameter"/>
+                </group>
+            </form>
+        </field>
+    </record>
+<!--    widget="rp_field"-->
+    <record id="view_field_zalo_api_tree" model="ir.ui.view">
+        <field name="name">field.zalo.api.tree</field>
+        <field name="model">field.zalo.api</field>
+        <field name="arch" type="xml">
+            <tree string="Fields Zalo">
+<!--                <field name="name"/>-->
+                <field name="root_model_name"/>
+                <field name="cumulative_model_field"/>
+                <field name="model_field_selector" widget="DynamicModelFieldSelectorChar"/>
+                <field name="zalo_parameter"/>
+            </tree>
+        </field>
+    </record>
+</odoo>
