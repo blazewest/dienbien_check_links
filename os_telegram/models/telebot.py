@@ -8,10 +8,10 @@ class TelegramBot(models.Model):
     _description = 'Telegram Bot'
 
     name = fields.Char('Name bot', required=True)
-    # manager_id = fields.Many2one('hr.employee', string='Manager')
     token = fields.Char('Bot Token', required=True)
     chat_id = fields.Char('Chat ID')
     info = fields.Char('Chat ID',compute='_compute_code', store=True, readonly=True)
+
     @api.depends('token')
     def _compute_code(self):
         for record in self:

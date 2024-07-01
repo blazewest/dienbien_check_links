@@ -17,8 +17,11 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="responsible_user_ids" widget="many2many_tags"/>
+<!--                        <field name="responsible_user_ids" widget="many2many_tags"/>-->
                         <field name="bool_limit"/>
+                        <field name="bot_send_tele"/>
+                        <field name="qty_requests"/>
+                        <field name="qty_requests_false"/>
                         <field name="bool_send_zalo" readonly="1"/>
                         <field name="limit_url" invisible="not bool_limit"/>
                         <field name="status_code" readonly="1"/>

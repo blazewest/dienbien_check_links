@@ -11,7 +11,10 @@ class WebsiteStatus(models.Model):
 
     name = fields.Char('Website URL', required=True)
     bool_limit = fields.Boolean('Giới hạn quét links',default=True)
-    bool_send_zalo = fields.Boolean('Đã gửi tin nhắn quét lỗi', readonly=False, default=False)
+    bot_send_tele = fields.Many2one('telegram.bot','Bot telegram')
+    qty_requests = fields.Integer('Số lần quét lại', default=3)
+    qty_requests_false = fields.Integer('Số lần đã quét lại', readonly=False, default=0)
+    # bool_send_zalo = fields.Boolean('Đã gửi tin nhắn quét lỗi', readonly=False, default=False)
     limit_url = fields.Integer('Giới hạn số lượng quét links', default=30,)
     status_code = fields.Char('Mã trạng thái trang chủ', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='200')
     status_message = fields.Char('Tin nhắn trạng thái', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='')
@@ -19,7 +22,7 @@ class WebsiteStatus(models.Model):
     qty_status_true = fields.Integer('Số lượng links web hoạt động bình thường', compute='_compute_links',store=True, default=0, compute_sudo=True)
     qty_status_false = fields.Integer('Số lượng links web hỏng', compute='_compute_links', store=True, default=0, compute_sudo=True)
     status_links = fields.Text('Chi tiết trạng thái Links web', compute='_compute_links', store=True, readonly=True, compute_sudo=True)
-    responsible_user_ids = fields.One2many('hr.employee','check_web_id', string='Người phụ trách')
+    # responsible_user_ids = fields.One2many('hr.employee','check_web_id', string='Người phụ trách')
 
 
     @api.depends('name')
@@ -90,20 +93,21 @@ class WebsiteStatus(models.Model):
                 record.qty_status_true = 0
                 record.qty_status_false = 1
                 record.status_links = ''
-                self.env['code.processing'].create()
+                # self.env['code.processing'].create()
 
     def compute_links_cron(self):
         websites = self.search([])
         for website in websites:
             website.check_website_status()
-            if website.status_code != '200' and website.responsible_user_ids and not website.bool_send_zalo:
-                self.env['code.processing'].create()
+            if website.qty_requests_false > website.qty_requests:
+                # self.env['code.processing'].create()
+                pass
 
-    def compute_update_send_zalo(self):
-        websites = self.search(['bool_send_zalo', '=', 'true'])
-        if websites:
-            for website in websites:
-                website.bool_send_zalo = False
+    # def compute_update_send_zalo(self):
+    #     websites = self.search(['bool_send_zalo', '=', 'true'])
+    #     if websites:
+    #         for website in websites:
+    #             website.bool_send_zalo = False
 
     def send_error_email(self, website):
         if not website.responsible_user_id.work_email:
@@ -111,10 +115,10 @@ class WebsiteStatus(models.Model):
         template = self.env.ref('check_erro.email_template_website_status_error')
         self.env['mail.template'].browse(template.id).send_mail(website.id, force_send=True)
 
-    def send_quick_email(self):
-        for record in self:
-            if record.status_code != '200' and record.responsible_user_id and record.responsible_user_id.work_email:
-                self.send_error_email(record)
+    # def send_quick_email(self):
+    #     for record in self:
+    #         if record.status_code != '200' and record.responsible_user_id and record.responsible_user_id.work_email:
+    #             self.send_error_email(record)
 
     def check_website_status(self):
         for record in self:
@@ -174,6 +178,7 @@ class WebsiteStatus(models.Model):
                     record.qty_status_false = qty_links_error
                     record.status_links = '\n'.join(status_links)
                     record.status_message = 'OK'
+                    record.qty_requests_false = 0
                 else:
                     record.status_message = response.reason
             except requests.exceptions.RequestException as e:
@@ -183,3 +188,4 @@ class WebsiteStatus(models.Model):
                 record.qty_status_true = 0
                 record.qty_status_false = 1
                 record.status_links = ''
+                record.qty_requests_false += 1
