@@ -10,9 +10,9 @@
                         string="Check Status">
 
                     </button>
-                    <button name="send_quick_email"
-                            string="Send Quick Email"
-                            type="object" class="oe_highlight"/>
+<!--                    <button name="send_quick_email"-->
+<!--                            string="Send Quick Email"-->
+<!--                            type="object" class="oe_highlight"/>-->
                 </header>
                 <sheet>
                     <group>
