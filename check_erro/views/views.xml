@@ -22,7 +22,7 @@
                         <field name="bot_send_tele"/>
                         <field name="qty_requests"/>
                         <field name="qty_requests_false"/>
-                        <field name="bool_send_zalo" readonly="1"/>
+<!--                        <field name="bool_send_zalo" readonly="1"/>-->
                         <field name="limit_url" invisible="not bool_limit"/>
                         <field name="status_code" readonly="1"/>
                         <field name="status_message" readonly="1"/>
