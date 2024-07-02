@@ -14,9 +14,10 @@
 <!--                            class="oe_highlight" string="test tele"/>-->
                         </header>
                         <group>
-<!--                            <field name="name"/>-->
+                            <field name="name"/>
                             <field name="token" />
                             <field name="chat_id" />
+                            <field name="info" />
                             <a href="https://developers.zalo.me/tools/explorer" target="_blank">Lấy Access Token</a>
                         </group>
                     </sheet>
