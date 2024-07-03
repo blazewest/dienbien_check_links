@@ -190,6 +190,3 @@ class WebsiteStatus(models.Model):
                 record.qty_status_false = 1
                 record.status_links = ''
                 record.qty_requests_false += 1
-                if record.qty_requests_false >= record.qty_requests:
-                    message = "Website URL: " + record.name + "\n" + "Mã trạng thái trang chủ: " + record.status_code
-                    record.bot_send_tele.send_message(message)
