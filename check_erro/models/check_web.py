@@ -93,7 +93,6 @@ class WebsiteStatus(models.Model):
                 record.qty_status_true = 0
                 record.qty_status_false = 1
                 record.status_links = ''
-                record.qty_requests_false += 1
                 # self.env['code.processing'].create()
 
     def compute_links_cron(self):
