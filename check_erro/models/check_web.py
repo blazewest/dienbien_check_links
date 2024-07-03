@@ -13,7 +13,7 @@ class WebsiteStatus(models.Model):
     bool_limit = fields.Boolean('Giới hạn quét links',default=True)
     bot_send_tele = fields.Many2one('telegram.bot','Bot telegram')
     qty_requests = fields.Integer('Số lần quét lại', default=3)
-    qty_requests_false = fields.Integer('Số lần đã quét lại', readonly=False, default=0)
+    qty_requests_false = fields.Integer('Số lần đã quét lại', readonly=True, default=0)
     # bool_send_zalo = fields.Boolean('Đã gửi tin nhắn quét lỗi', readonly=False, default=False)
     limit_url = fields.Integer('Giới hạn số lượng quét links', default=30,)
     status_code = fields.Char('Mã trạng thái trang chủ', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='200')
@@ -93,15 +93,16 @@ class WebsiteStatus(models.Model):
                 record.qty_status_true = 0
                 record.qty_status_false = 1
                 record.status_links = ''
+                record.qty_requests_false += 1
                 # self.env['code.processing'].create()
 
     def compute_links_cron(self):
         websites = self.search([])
         for website in websites:
             website.check_website_status()
-            if website.qty_requests_false > website.qty_requests:
-                # self.env['code.processing'].create()
-                pass
+            if website.qty_requests_false >= website.qty_requests:
+                message = "Website URL: " + website.name + "\n" + "Mã trạng thái trang chủ: " + website.status_code
+                website.bot_send_tele.send_message(message)
 
     # def compute_update_send_zalo(self):
     #     websites = self.search(['bool_send_zalo', '=', 'true'])
@@ -189,3 +190,6 @@ class WebsiteStatus(models.Model):
                 record.qty_status_false = 1
                 record.status_links = ''
                 record.qty_requests_false += 1
+                if record.qty_requests_false >= record.qty_requests:
+                    message = "Website URL: " + record.name + "\n" + "Mã trạng thái trang chủ: " + record.status_code
+                    record.bot_send_tele.send_message(message)
