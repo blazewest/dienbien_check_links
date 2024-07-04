@@ -15,7 +15,7 @@ class WebsiteStatus(models.Model):
     qty_requests = fields.Integer('Số lần quét lại', default=3)
     qty_requests_false = fields.Integer('Số lần đã quét lại', readonly=True, default=0)
     # bool_send_zalo = fields.Boolean('Đã gửi tin nhắn quét lỗi', readonly=False, default=False)
-    limit_url = fields.Integer('Giới hạn số lượng quét links', default=30,)
+    limit_url = fields.Integer('Giới hạn số lượng quét links', default=10)
     status_code = fields.Char('Mã trạng thái trang chủ', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='200')
     status_message = fields.Char('Tin nhắn trạng thái', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='')
     qty_links = fields.Integer('Số lượng links kiểm tra', compute='_compute_links',store=True, default=0, compute_sudo=True)
@@ -23,7 +23,11 @@ class WebsiteStatus(models.Model):
     qty_status_false = fields.Integer('Số lượng links web hỏng', compute='_compute_links', store=True, default=0, compute_sudo=True)
     status_links = fields.Text('Chi tiết trạng thái Links web', compute='_compute_links', store=True, readonly=True, compute_sudo=True)
     # responsible_user_ids = fields.One2many('hr.employee','check_web_id', string='Người phụ trách')
-
+    status_code_last = fields.Selection([('activity', 'activity'), ('stopped', 'stopped')], default='activity')
+    # location_type = fields.Selection([
+    #     ('home', 'Home'),
+    #     ('office', 'Office'),
+    #     ('other', 'Other')], string='Cover Image', default='office', required=True)
 
     @api.depends('name')
     def _compute_links(self):
@@ -100,21 +104,30 @@ class WebsiteStatus(models.Model):
         for website in websites:
             website.check_website_status()
             if website.qty_requests_false >= website.qty_requests:
-                message = "Website URL: " + website.name + "\n" + "Mã trạng thái trang chủ: " + website.status_code
-                website.bot_send_tele.send_message(message)
+                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã trạng thái trang chủ: {website.status_code}"
+                           f"\n🔴 Down")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "stopped"
+            elif website.status_code_last == "stopped" and website.status_code == "200":
+                message = (
+                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã trạng thái trang chủ: {website.status_code}"
+                    f"\n🔵 Up")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "activity"
+
 
     # def compute_update_send_zalo(self):
     #     websites = self.search(['bool_send_zalo', '=', 'true'])
     #     if websites:
     #         for website in websites:
     #             website.bool_send_zalo = False
-
-    def send_error_email(self, website):
-        if not website.responsible_user_id.work_email:
-            raise UserError("The responsible user does not have a work email.")
-        template = self.env.ref('check_erro.email_template_website_status_error')
-        self.env['mail.template'].browse(template.id).send_mail(website.id, force_send=True)
-
+    #
+    # def send_error_email(self, website):
+    #     if not website.responsible_user_id.work_email:
+    #         raise UserError("The responsible user does not have a work email.")
+    #     template = self.env.ref('check_erro.email_template_website_status_error')
+    #     self.env['mail.template'].browse(template.id).send_mail(website.id, force_send=True)
+    #
     # def send_quick_email(self):
     #     for record in self:
     #         if record.status_code != '200' and record.responsible_user_id and record.responsible_user_id.work_email:
@@ -180,6 +193,11 @@ class WebsiteStatus(models.Model):
                     record.status_message = 'OK'
                     record.qty_requests_false = 0
                 else:
+                    record.qty_links = 1
+                    record.qty_status_true = 0
+                    record.qty_status_false = 1
+                    record.status_links = ''
+                    record.qty_requests_false += 1
                     record.status_message = response.reason
             except requests.exceptions.RequestException as e:
                 record.status_code = 'Error'
@@ -189,3 +207,6 @@ class WebsiteStatus(models.Model):
                 record.qty_status_false = 1
                 record.status_links = ''
                 record.qty_requests_false += 1
+                # if record.qty_requests_false >= record.qty_requests:
+                #     message = f"Website URL: <a href='{record.name}'>{record.name}</a>\nMã trạng thái trang chủ: {record.status_code}"
+                #     record.bot_send_tele.send_message(message, parse_mode='HTML')
