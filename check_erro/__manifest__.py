@@ -4,7 +4,7 @@
     'summary': 'Module to check website status',
     'category': 'Tools',
     'author': 'Duy Hung',
-    'depends': ['base','hr','os_telegram'],
+    'depends': ['base','os_telegram'],
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',
