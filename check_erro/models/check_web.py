@@ -104,13 +104,13 @@ class WebsiteStatus(models.Model):
         for website in websites:
             website.check_website_status()
             if website.qty_requests_false >= website.qty_requests:
-                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã trạng thái trang chủ: {website.status_code}"
+                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
                            f"\n🔴 Down")
                 website.bot_send_tele.send_message(message, parse_mode='HTML')
                 website.status_code_last = "stopped"
             elif website.status_code_last == "stopped" and website.status_code == "200":
                 message = (
-                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã trạng thái trang chủ: {website.status_code}"
+                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
                     f"\n🔵 Up")
                 website.bot_send_tele.send_message(message, parse_mode='HTML')
                 website.status_code_last = "activity"

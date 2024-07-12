@@ -11,17 +11,17 @@
             <field name="numbercall">-1</field>
         </record>
 
-        <record id="ir_cron_compute_update_send_zalo" model="ir.cron">
-            <field name="name">Compute Send Zalo</field>
-            <field name="model_id" ref="model_website_status"/>
-            <field name="state">code</field>
-            <field name="code">model.compute_update_send_zalo()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">days</field>
-            <field name="numbercall">-1</field>
-            <field name="priority" eval="1"/>
-            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0) + timedelta(days=1)).strftime('%Y-%m-%d 22:00:00')" />
-            <field name="doall" eval="True"/>
-        </record>
+<!--        <record id="ir_cron_compute_update_send_zalo" model="ir.cron">-->
+<!--            <field name="name">Compute Send Zalo</field>-->
+<!--            <field name="model_id" ref="model_website_status"/>-->
+<!--            <field name="state">code</field>-->
+<!--            <field name="code">model.compute_update_send_zalo()</field>-->
+<!--            <field name="interval_number">1</field>-->
+<!--            <field name="interval_type">days</field>-->
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="priority" eval="1"/>-->
+<!--            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0) + timedelta(days=1)).strftime('%Y-%m-%d 22:00:00')" />-->
+<!--            <field name="doall" eval="True"/>-->
+<!--        </record>-->
     </data>
 </odoo>
