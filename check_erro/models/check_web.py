@@ -36,7 +36,7 @@ class WebsiteStatus(models.Model):
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
                 session = requests.Session()
-                response = session.get(record.name, headers=headers)
+                response = session.get(record.name, headers=headers,verify=False)
                 record.status_code = str(response.status_code)
 
                 if response.status_code == 200:
@@ -70,7 +70,7 @@ class WebsiteStatus(models.Model):
 
                     for full_url in links_url:
                         try:
-                            link_response = session.get(full_url, headers=headers)
+                            link_response = session.get(full_url, headers=headers,verify=False)
                             if link_response.status_code == 200:
                                 status_links.append(f"{full_url} - OK")
                                 qty_links_ok += 1
@@ -139,7 +139,7 @@ class WebsiteStatus(models.Model):
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
                 session = requests.Session()
-                response = session.get(record.name, headers=headers)
+                response = session.get(record.name, headers=headers,verify=False)
                 record.status_code = str(response.status_code)
 
                 if response.status_code == 200:
@@ -173,7 +173,7 @@ class WebsiteStatus(models.Model):
 
                     for full_url in links_url:
                         try:
-                            link_response = session.get(full_url, headers=headers)
+                            link_response = session.get(full_url, headers=headers,verify=False)
                             if link_response.status_code == 200:
                                 status_links.append(f"{full_url} - OK")
                                 qty_links_ok += 1
