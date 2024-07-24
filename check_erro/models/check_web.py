@@ -232,16 +232,14 @@ class WebsiteStatus(models.Model):
                 #     record.bot_send_tele.send_message(message, parse_mode='HTML')
 
     def check_fast(self):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        session = requests.Session()
-
+        # headers = {
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        # }
+        # session = requests.Session()
         def fetch_status(record):
             try:
-                response = session.get(record.name, headers=headers, verify=False)
+                response = requests.get(record.name, verify=False)
                 record.status_code = str(response.status_code)
-
                 if response.status_code == 200:
                     record.qty_links = 1
                     record.qty_status_true = 1
