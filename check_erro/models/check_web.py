@@ -239,7 +239,7 @@ class WebsiteStatus(models.Model):
 
         def fetch_status(record):
             try:
-                response = session.head(record.name, headers=headers, verify=False)
+                response = session.get(record.name, headers=headers, verify=False)
                 record.status_code = str(response.status_code)
 
                 if response.status_code == 200:
