@@ -229,3 +229,38 @@ class WebsiteStatus(models.Model):
                 # if record.qty_requests_false >= record.qty_requests:
                 #     message = f"Website URL: <a href='{record.name}'>{record.name}</a>\nMã trạng thái trang chủ: {record.status_code}"
                 #     record.bot_send_tele.send_message(message, parse_mode='HTML')
+
+    def check_fast(self):
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        session = requests.Session()
+
+        for record in self:
+            try:
+                response = session.get(record.name, headers=headers, verify=False)
+                record.status_code = str(response.status_code)
+
+                if response.status_code == 200:
+                    record.qty_links = 1
+                    record.qty_status_true = 1
+                    record.qty_status_false = 0
+                    record.status_links = ' '
+                    record.status_message = 'OK'
+                    record.qty_requests_false = 0
+                else:
+                    record.qty_links = 1
+                    record.qty_status_true = 0
+                    record.qty_status_false = 1
+                    record.status_links = ''
+                    record.status_message = response.reason
+                    record.qty_requests_false += 1
+            except requests.exceptions.RequestException as e:
+                record.status_code = 'Error'
+                record.status_message = str(e)
+                record.qty_links = 1
+                record.qty_status_true = 0
+                record.qty_status_false = 1
+                record.status_links = ''
+                record.qty_requests_false += 1
+
