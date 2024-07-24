@@ -257,7 +257,7 @@ class WebsiteStatus(models.Model):
                     record.status_message = response.reason
                     record.qty_requests_false += 1
             except requests.exceptions.RequestException as e:
-                record.status_code = 'Error'
+                record.status_code = str(response.status_code)
                 record.status_message = str(e)
                 record.qty_links = 1
                 record.qty_status_true = 0
