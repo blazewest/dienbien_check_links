@@ -265,7 +265,7 @@ class WebsiteStatus(models.Model):
                 record.status_links = ''
                 record.qty_requests_false += 1
 
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(max_workers=8) as executor:
             future_to_record = {executor.submit(fetch_status, record): record for record in self}
             for future in as_completed(future_to_record):
                 future_to_record[future]
