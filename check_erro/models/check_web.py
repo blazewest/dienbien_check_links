@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+import logging
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 
 class WebsiteStatus(models.Model):
