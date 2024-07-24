@@ -4,6 +4,7 @@ from urllib.parse import urlparse, urljoin
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -236,7 +237,7 @@ class WebsiteStatus(models.Model):
         }
         session = requests.Session()
 
-        for record in self:
+        def fetch_status(record):
             try:
                 response = session.get(record.name, headers=headers, verify=False)
                 record.status_code = str(response.status_code)
@@ -264,3 +265,7 @@ class WebsiteStatus(models.Model):
                 record.status_links = ''
                 record.qty_requests_false += 1
 
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            future_to_record = {executor.submit(fetch_status, record): record for record in self}
+            for future in as_completed(future_to_record):
+                future_to_record[future]
