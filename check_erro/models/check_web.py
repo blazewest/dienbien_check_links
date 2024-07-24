@@ -106,7 +106,7 @@ class WebsiteStatus(models.Model):
     def compute_links_cron(self):
         websites = self.search([('bot_send_tele.name', '=', 'dienbiet_bot_icd')])
         for website in websites:
-            website.check_website_status()
+            website.check_fast()
             if website.qty_requests_false >= website.qty_requests:
                 message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
                            f"\n🔴 Down")
@@ -122,7 +122,7 @@ class WebsiteStatus(models.Model):
     def compute_links_cron_hscv(self):
         websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
         for website in websites:
-            website.check_website_status()
+            website.check_fast()
             if website.qty_requests_false >= website.qty_requests:
                 message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
                            f"\n🔴 Down")
