@@ -100,7 +100,7 @@ class WebsiteStatus(models.Model):
                 # self.env['code.processing'].create()
 
     def compute_links_cron(self):
-        websites = self.search([])
+        websites = self.search([('bot_send_tele.name', '=', 'dienbiet_bot_icd')])
         for website in websites:
             website.check_website_status()
             if website.qty_requests_false >= website.qty_requests:
@@ -115,6 +115,21 @@ class WebsiteStatus(models.Model):
                 website.bot_send_tele.send_message(message, parse_mode='HTML')
                 website.status_code_last = "activity"
 
+    def compute_links_cron_hscv(self):
+        websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
+        for website in websites:
+            website.check_website_status()
+            if website.qty_requests_false >= website.qty_requests:
+                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                           f"\n🔴 Down")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "stopped"
+            elif website.status_code_last == "stopped" and website.status_code == "200":
+                message = (
+                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                    f"\n🔵 Up")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "activity"
 
     # def compute_update_send_zalo(self):
     #     websites = self.search(['bool_send_zalo', '=', 'true'])

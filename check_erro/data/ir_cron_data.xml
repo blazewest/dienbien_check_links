@@ -6,7 +6,7 @@
             <field name="model_id" ref="model_website_status"/>
             <field name="state">code</field>
             <field name="code">model.compute_links_cron()</field>
-            <field name="interval_number">10</field>
+            <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
         </record>
