@@ -6,13 +6,22 @@ from odoo.exceptions import UserError
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib3
+import aiohttp
+import asyncio
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+import signal
 
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException
 
 class WebsiteStatus(models.Model):
     _name = 'website.status'
     _description = 'Website Status Checker'
+
 
     name = fields.Char('Website URL', required=True)
     bool_limit = fields.Boolean('Giới hạn quét links',default=True)
@@ -33,6 +42,7 @@ class WebsiteStatus(models.Model):
     #     ('home', 'Home'),
     #     ('office', 'Office'),
     #     ('other', 'Other')], string='Cover Image', default='office', required=True)
+
 
     @api.depends('name')
     def _compute_links(self):
@@ -121,20 +131,31 @@ class WebsiteStatus(models.Model):
                 website.status_code_last = "activity"
 
     def compute_links_cron_hscv(self):
-        websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
-        for website in websites:
-            website.check_fast()
-            if website.qty_requests_false >= website.qty_requests:
-                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
-                           f"\n🔴 Down")
-                website.bot_send_tele.send_message(message, parse_mode='HTML')
-                website.status_code_last = "stopped"
-            elif website.status_code_last == "stopped" and website.status_code == "200":
-                message = (
-                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
-                    f"\n🔵 Up")
-                website.bot_send_tele.send_message(message, parse_mode='HTML')
-                website.status_code_last = "activity"
+        # Đặt timeout handler
+        signal.signal(signal.SIGALRM, timeout_handler)
+        # Đặt timeout là 300 giây (5 phút)
+        signal.alarm(300)
+        try:
+            websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
+            for website in websites:
+                website.check_fast()
+                if website.qty_requests_false >= website.qty_requests:
+                    message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                               f"\n🔴 Down")
+                    website.bot_send_tele.send_message(message, parse_mode='HTML')
+                    website.status_code_last = "stopped"
+                elif website.status_code_last == "stopped" and website.status_code == "200":
+                    message = (
+                        f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                        f"\n🔵 Up")
+                    website.bot_send_tele.send_message(message, parse_mode='HTML')
+                    website.status_code_last = "activity"
+        except TimeoutException:
+            print("Cron job timed out. Starting a new session.")
+            # Xử lý khi hết thời gian chờ (timeout)
+        finally:
+            # Tắt alarm
+            signal.alarm(0)
 
     # def compute_update_send_zalo(self):
     #     websites = self.search(['bool_send_zalo', '=', 'true'])
@@ -231,16 +252,14 @@ class WebsiteStatus(models.Model):
                 #     message = f"Website URL: <a href='{record.name}'>{record.name}</a>\nMã trạng thái trang chủ: {record.status_code}"
                 #     record.bot_send_tele.send_message(message, parse_mode='HTML')
 
-    def check_fast(self):
+    async def fetch_status(self, session, record):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        # session = requests.Session()
-        def fetch_status(record):
-            try:
-                response = requests.get(record.name, headers=headers,verify=False)
-                record.status_code = str(response.status_code)
-                if response.status_code == 200:
+        try:
+            async with session.get(record.name, headers=headers, ssl=False) as response:
+                record.status_code = str(response.status)
+                if response.status == 200:
                     record.qty_links = 1
                     record.qty_status_true = 1
                     record.qty_status_false = 0
@@ -254,16 +273,21 @@ class WebsiteStatus(models.Model):
                     record.status_links = ''
                     record.status_message = response.reason
                     record.qty_requests_false += 1
-            except requests.exceptions.RequestException as e:
-                record.status_code = str(response.status_code)
-                record.status_message = str(e)
-                record.qty_links = 1
-                record.qty_status_true = 0
-                record.qty_status_false = 1
-                record.status_links = ''
-                record.qty_requests_false += 1
+        except aiohttp.ClientError as e:
+            record.status_code = 'Error'
+            record.status_message = str(e)
+            record.qty_links = 1
+            record.qty_status_true = 0
+            record.qty_status_false = 1
+            record.status_links = ''
+            record.qty_requests_false += 1
 
-        with ThreadPoolExecutor(max_workers=8) as executor:
-            future_to_record = {executor.submit(fetch_status, record): record for record in self}
-            for future in as_completed(future_to_record):
-                future_to_record[future]
+    async def check_fast_async(self):
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.fetch_status(session, record) for record in self]
+            await asyncio.gather(*tasks)
+
+    def check_fast(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.check_fast_async())

@@ -21,6 +21,7 @@
                 </header>
                 <sheet>
                     <group>
+
                         <field name="name"/>
 <!--                        <field name="responsible_user_ids" widget="many2many_tags"/>-->
                         <field name="bool_limit"/>
