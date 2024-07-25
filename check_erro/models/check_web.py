@@ -10,13 +10,7 @@ import aiohttp
 import asyncio
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-import signal
 
-class TimeoutException(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutException
 
 class WebsiteStatus(models.Model):
     _name = 'website.status'
@@ -131,31 +125,20 @@ class WebsiteStatus(models.Model):
                 website.status_code_last = "activity"
 
     def compute_links_cron_hscv(self):
-        # Đặt timeout handler
-        signal.signal(signal.SIGALRM, timeout_handler)
-        # Đặt timeout là 300 giây (5 phút)
-        signal.alarm(300)
-        try:
-            websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
-            for website in websites:
-                website.check_fast()
-                if website.qty_requests_false >= website.qty_requests:
-                    message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
-                               f"\n🔴 Down")
-                    website.bot_send_tele.send_message(message, parse_mode='HTML')
-                    website.status_code_last = "stopped"
-                elif website.status_code_last == "stopped" and website.status_code == "200":
-                    message = (
-                        f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
-                        f"\n🔵 Up")
-                    website.bot_send_tele.send_message(message, parse_mode='HTML')
-                    website.status_code_last = "activity"
-        except TimeoutException:
-            print("Cron job timed out. Starting a new session.")
-            # Xử lý khi hết thời gian chờ (timeout)
-        finally:
-            # Tắt alarm
-            signal.alarm(0)
+        websites = self.search([('bot_send_tele.name', '=', 'HSCV')])
+        for website in websites:
+            website.check_fast()
+            if website.qty_requests_false >= website.qty_requests:
+                message = (f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                           f"\n🔴 Down")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "stopped"
+            elif website.status_code_last == "stopped" and website.status_code == "200":
+                message = (
+                    f"Website URL: <a href='{website.name}'>{website.name}</a>\nMã : {website.status_code}"
+                    f"\n🔵 Up")
+                website.bot_send_tele.send_message(message, parse_mode='HTML')
+                website.status_code_last = "activity"
 
     # def compute_update_send_zalo(self):
     #     websites = self.search(['bool_send_zalo', '=', 'true'])
@@ -258,6 +241,7 @@ class WebsiteStatus(models.Model):
         }
         try:
             async with session.get(record.name, headers=headers, ssl=False) as response:
+                print(response)
                 record.status_code = str(response.status)
                 if response.status == 200:
                     record.qty_links = 1
