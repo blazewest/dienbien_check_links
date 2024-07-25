@@ -241,7 +241,6 @@ class WebsiteStatus(models.Model):
         }
         try:
             async with session.get(record.name, headers=headers, ssl=False) as response:
-                print(response)
                 record.status_code = str(response.status)
                 if response.status == 200:
                     record.qty_links = 1
