@@ -241,7 +241,6 @@ class WebsiteStatus(models.Model):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-
         def fetch_status(record):
             try:
                 response = requests.get(record.name, headers=headers, verify=False)
@@ -269,7 +268,6 @@ class WebsiteStatus(models.Model):
             #     record.qty_status_false = 1
             #     record.status_links = ''
             #     record.qty_requests_false += 1
-            #     record.bool_request = False
             except requests.exceptions.RequestException as e:
                 record.status_code = 'Error'
                 record.status_message = str(e)
@@ -278,7 +276,6 @@ class WebsiteStatus(models.Model):
                 record.qty_status_false = 1
                 record.status_links = ''
                 record.qty_requests_false += 1
-                record.bool_request = False  # Nếu muốn cập nhật cho tất cả các lỗi khác
 
         with ThreadPoolExecutor(max_workers=8) as executor:
             future_to_record = {executor.submit(fetch_status, record): record for record in self}
