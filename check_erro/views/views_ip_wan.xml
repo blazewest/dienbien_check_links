@@ -6,10 +6,8 @@
         <field name="arch" type="xml">
             <form string="IP WAN">
                 <sheet>
-                    <h1>
-                        <field name="name"/>
-                    </h1>
                     <group>
+                        <field name="name"/>
                         <field name="info_ip"/>
                         <field name="Ngay"/>
                     </group>
