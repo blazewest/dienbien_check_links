@@ -174,10 +174,12 @@ class WebsiteStatus(models.Model):
                             record.qty_status_true = 1
                             record.status_message = 'OK'
                             record.qty_requests_false = 0
+                            record.qty_status_false = 0
                             break  # Ngừng kiểm tra nếu tìm thấy kết nối thành công
                         else:
                             # Chỉ tăng số lượng false 1 lần
                             if not checked_once:
+                                record.qty_status_true = 0
                                 record.qty_status_false = 1
                                 record.qty_requests_false += 1
                                 checked_once = True
