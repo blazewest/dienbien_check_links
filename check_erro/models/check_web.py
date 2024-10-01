@@ -83,7 +83,7 @@ class WebsiteStatus(models.Model):
                     response = session.get(url, verify=False, timeout=5)
                     record.status_code = str(response.status_code)
 
-                    if response.status_code == 200:
+                    if response.status_code == "200":
                         soup = BeautifulSoup(response.text, "html.parser")
                         links = soup.find_all("a")
                         status_links = []
@@ -118,7 +118,7 @@ class WebsiteStatus(models.Model):
                         for full_url in links_url:
                             try:
                                 link_response = session.get(full_url, verify=False, timeout=5)
-                                if link_response.status_code == 200:
+                                if link_response.status_code == "200":
                                     status_links.append(f"{full_url} - OK")
                                     qty_links_ok += 1
                                 else:
@@ -175,7 +175,7 @@ class WebsiteStatus(models.Model):
                         record.status_code = str(response.status_code)
                         record.status_message = response.reason
 
-                        if response.status_code == 200:
+                        if response.status_code == "200":
                             record.qty_status_true = 1
                             record.status_message = 'OK'
                             break  # Ngừng kiểm tra nếu tìm thấy kết nối thành công
