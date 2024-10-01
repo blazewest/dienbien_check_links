@@ -157,10 +157,6 @@ class WebsiteStatus(models.Model):
         def fetch_status(record):
             # Khởi tạo giá trị mặc định cho record
             record.qty_links = 1
-            record.qty_status_true = 0
-            record.qty_status_false = 0
-            record.status_links = ''
-            record.qty_requests_false = getattr(record, 'qty_requests_false', 0)
 
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -174,10 +170,10 @@ class WebsiteStatus(models.Model):
                     with requests.get(url, headers=headers, verify=False) as response:
                         record.status_code = str(response.status_code)
                         record.status_message = response.reason
-
-                        if response.status_code == "200":
+                        if record.status_code == "200":
                             record.qty_status_true = 1
                             record.status_message = 'OK'
+                            record.qty_requests_false = 0
                             break  # Ngừng kiểm tra nếu tìm thấy kết nối thành công
                         else:
                             # Chỉ tăng số lượng false 1 lần
