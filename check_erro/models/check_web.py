@@ -162,11 +162,16 @@ class WebsiteStatus(models.Model):
             record.status_links = ''
             record.qty_requests_false = getattr(record, 'qty_requests_false', 0)
 
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+
             # Thử kiểm tra cả http và https
+            checked_once = False
             for protocol in ['http', 'https']:
                 try:
                     url = f"{protocol}://{record.name}"
-                    with requests.get(url, verify=False, timeout=5) as response:
+                    with requests.get(url, headers=headers, verify=False) as response:
                         record.status_code = str(response.status_code)
                         record.status_message = response.reason
 
@@ -175,13 +180,18 @@ class WebsiteStatus(models.Model):
                             record.status_message = 'OK'
                             break  # Ngừng kiểm tra nếu tìm thấy kết nối thành công
                         else:
-                            record.qty_status_false = 1
-                            record.qty_requests_false += 1
+                            # Chỉ tăng số lượng false 1 lần
+                            if not checked_once:
+                                record.qty_status_false = 1
+                                record.qty_requests_false += 1
+                                checked_once = True
                 except requests.exceptions.RequestException as e:
                     record.status_code = 'Error'
                     record.status_message = str(e)
-                    record.qty_status_false = 1
-                    record.qty_requests_false += 1
+                    if not checked_once:
+                        record.qty_status_false = 1
+                        record.qty_requests_false += 1
+                        checked_once = True
 
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = {executor.submit(fetch_status, record): record for record in self}
