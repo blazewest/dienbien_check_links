@@ -22,7 +22,6 @@ class WebsiteStatus(models.Model):
     bot_send_tele = fields.Many2one('telegram.bot','Bot telegram')
     qty_requests = fields.Integer('Số lần quét lại', default=3)
     qty_requests_false = fields.Integer('Số lần đã quét lại', readonly=True, default=0)
-    # bool_send_zalo = fields.Boolean('Đã gửi tin nhắn quét lỗi', readonly=False, default=False)
     limit_url = fields.Integer('Giới hạn số lượng quét links', default=10)
     status_code = fields.Char('Mã trạng thái trang chủ', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='200')
     status_message = fields.Char('Tin nhắn trạng thái', compute='_compute_links',store=True, readonly=True, compute_sudo=True, default='')
@@ -31,12 +30,7 @@ class WebsiteStatus(models.Model):
     qty_status_false = fields.Integer('Số lượng links web hỏng', compute='_compute_links', store=True, default=0, compute_sudo=True)
     status_links = fields.Text('Chi tiết trạng thái Links web', compute='_compute_links', store=True, readonly=True, compute_sudo=True)
     bool_request = fields.Boolean('request chậm',default=True)
-    # responsible_user_ids = fields.One2many('hr.employee','check_web_id', string='Người phụ trách')
     status_code_last = fields.Selection([('activity', 'activity'), ('stopped', 'stopped')], default='activity')
-    # location_type = fields.Selection([
-    #     ('home', 'Home'),
-    #     ('office', 'Office'),
-    #     ('other', 'Other')], string='Cover Image', default='office', required=True)
 
 
     @api.depends('name')
@@ -142,23 +136,6 @@ class WebsiteStatus(models.Model):
                 website.bot_send_tele.send_message(message, parse_mode='HTML')
                 website.status_code_last = "activity"
 
-    # def compute_update_send_zalo(self):
-    #     websites = self.search(['bool_send_zalo', '=', 'true'])
-    #     if websites:
-    #         for website in websites:
-    #             website.bool_send_zalo = False
-    #
-    # def send_error_email(self, website):
-    #     if not website.responsible_user_id.work_email:
-    #         raise UserError("The responsible user does not have a work email.")
-    #     template = self.env.ref('check_erro.email_template_website_status_error')
-    #     self.env['mail.template'].browse(template.id).send_mail(website.id, force_send=True)
-    #
-    # def send_quick_email(self):
-    #     for record in self:
-    #         if record.status_code != '200' and record.responsible_user_id and record.responsible_user_id.work_email:
-    #             self.send_error_email(record)
-
     def check_website_status(self):
         for record in self:
             try:
@@ -238,46 +215,32 @@ class WebsiteStatus(models.Model):
                 #     record.bot_send_tele.send_message(message, parse_mode='HTML')
 
     def check_fast(self):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
         def fetch_status(record):
-            try:
-                response = requests.get(record.name, headers=headers, verify=False)
-                record.status_code = str(response.status_code)
+            # Khởi tạo giá trị mặc định cho record
+            record.qty_links = 1
+            record.qty_status_true = 0
+            record.qty_status_false = 0
+            record.status_links = ''
+            record.qty_requests_false = getattr(record, 'qty_requests_false', 0)
 
-                if response.status_code == 200:
-                    record.qty_links = 1
-                    record.qty_status_true = 1
-                    record.qty_status_false = 0
-                    record.status_links = ' '
-                    record.status_message = 'OK'
-                    record.qty_requests_false = 0
-                else:
-                    record.qty_links = 1
-                    record.qty_status_true = 0
-                    record.qty_status_false = 1
-                    record.status_links = ''
+            try:
+                with requests.get(record.name, verify=False) as response:
+                    record.status_code = str(response.status_code)
                     record.status_message = response.reason
-                    record.qty_requests_false += 1
-            # except requests.exceptions.Timeout:
-            #     record.status_code = 'Timeout'
-            #     record.status_message = 'Request timed out'
-            #     record.qty_links = 1
-            #     record.qty_status_true = 0
-            #     record.qty_status_false = 1
-            #     record.status_links = ''
-            #     record.qty_requests_false += 1
+
+                    if response.status_code == 200:
+                        record.qty_status_true = 1
+                        record.status_message = 'OK'
+                    else:
+                        record.qty_status_false = 1
+                        record.qty_requests_false += 1
             except requests.exceptions.RequestException as e:
                 record.status_code = 'Error'
                 record.status_message = str(e)
-                record.qty_links = 1
-                record.qty_status_true = 0
                 record.qty_status_false = 1
-                record.status_links = ''
                 record.qty_requests_false += 1
 
         with ThreadPoolExecutor(max_workers=8) as executor:
-            future_to_record = {executor.submit(fetch_status, record): record for record in self}
-            for future in as_completed(future_to_record):
-                future_to_record[future]
+            futures = {executor.submit(fetch_status, record): record for record in self}
+            for future in as_completed(futures):
+                future_to_record = futures[future]
