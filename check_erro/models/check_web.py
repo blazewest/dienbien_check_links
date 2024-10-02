@@ -9,7 +9,20 @@ import urllib3
 import aiohttp
 import asyncio
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+import random
 
+user_agents = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.54 Safari/537.36',
+]
 
 
 class WebsiteStatus(models.Model):
@@ -157,40 +170,54 @@ class WebsiteStatus(models.Model):
         def fetch_status(record):
             # Khởi tạo giá trị mặc định cho record
             record.qty_links = 1
+            record.qty_status_true = 0
+            record.qty_status_false = 0
+            record.qty_requests_false = getattr(record, 'qty_requests_false', 0)
+            record.status_code = ''
+            record.status_message = ''
 
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                'User-Agent': random.choice(user_agents)
             }
 
-            # Thử kiểm tra cả http và https
-            checked_once = False
-            for protocol in ['http', 'https']:
+            # Hàm phụ để kiểm tra giao thức
+            def check_protocol(protocol):
+                url = f"{protocol}://{record.name}"
                 try:
-                    url = f"{protocol}://{record.name}"
-                    with requests.get(url, headers=headers, verify=False) as response:
-                        record.status_code = str(response.status_code)
-                        record.status_message = response.reason
-                        if record.status_code == "200":
-                            record.qty_status_true = 1
-                            record.status_message = 'OK'
-                            record.qty_requests_false = 0
-                            record.qty_status_false = 0
-                            break  # Ngừng kiểm tra nếu tìm thấy kết nối thành công
-                        else:
-                            # Chỉ tăng số lượng false 1 lần
-                            if not checked_once:
-                                record.qty_status_true = 0
-                                record.qty_status_false = 1
-                                record.qty_requests_false += 1
-                                checked_once = True
+                    response = requests.get(url, headers=headers, verify=False, allow_redirects=True)
+                    return response.status_code, response.reason
                 except requests.exceptions.RequestException as e:
-                    record.status_code = 'Error'
-                    record.status_message = str(e)
-                    if not checked_once:
-                        record.qty_status_false = 1
-                        record.qty_requests_false += 1
-                        checked_once = True
+                    return 'Error', str(e)
 
+            # Kiểm tra cả http và https đồng thời
+            with ThreadPoolExecutor(max_workers=2) as proto_executor:
+                protocols = ['http', 'https']
+                futures = {proto_executor.submit(check_protocol, proto): proto for proto in protocols}
+
+                results = []
+                for future in as_completed(futures):
+                    status_code, reason = future.result()
+                    results.append((status_code, reason))
+
+            # Xử lý kết quả từ cả http và https
+            for status_code, reason in results:
+                if status_code == 200:
+                    record.status_code = '200'
+                    record.status_message = 'OK'
+                    record.qty_status_true = 1
+                    record.qty_status_false = 0
+                    record.qty_requests_false = 0
+                    break  # Nếu một giao thức thành công, dừng kiểm tra
+                else:
+                    record.status_code = str(status_code)
+                    record.status_message = reason
+
+            # Nếu cả hai giao thức đều thất bại, tăng số lần lỗi
+            if record.qty_status_true == 0:
+                record.qty_status_false = 1
+                record.qty_requests_false += 1
+
+        # Sử dụng ThreadPoolExecutor để kiểm tra song song nhiều record
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = {executor.submit(fetch_status, record): record for record in self}
             for future in as_completed(futures):
