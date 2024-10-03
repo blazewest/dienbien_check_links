@@ -6,10 +6,9 @@ from odoo.exceptions import UserError
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib3
-import aiohttp
-import asyncio
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import random
+
 
 user_agents = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36',
@@ -184,7 +183,7 @@ class WebsiteStatus(models.Model):
             def check_protocol(protocol):
                 url = f"{protocol}://{record.name}"
                 try:
-                    response = requests.get(url, headers=headers, verify=False, allow_redirects=True)
+                    response = requests.get(url, headers=headers, verify=False)
                     return response.status_code, response.reason
                 except requests.exceptions.RequestException as e:
                     return 'Error', str(e)
