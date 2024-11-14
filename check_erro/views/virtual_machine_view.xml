@@ -1,0 +1,46 @@
+<odoo>
+    <record id="view_virtual_machine_tree" model="ir.ui.view">
+        <field name="name">virtual.machine.tree</field>
+        <field name="model">virtual.machine</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="status"/>
+                <field name="provisioned_space" sum="Total"/>
+                <field name="used_space" sum="Total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_virtual_machine_form" model="ir.ui.view">
+        <field name="name">virtual.machine.form</field>
+        <field name="model">virtual.machine</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="state"/>
+                        <field name="status"/>
+                        <field name="provisioned_space"/>
+                        <field name="used_space"/>
+                        <field name="raw_provisioned_space"/>
+                        <field name="raw_used_space"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_virtual_machine" model="ir.actions.act_window">
+    <field name="name">Virtual Machines</field>
+    <field name="res_model">virtual.machine</field>
+    <field name="view_mode">tree,form</field>
+    <field name="view_id" ref="view_virtual_machine_tree"/>
+        <field name="context">{'group_by': 'state'}</field>
+</record>
+
+    <menuitem id="menu_virtual_machine_root" name="Virtual Machines" sequence="1"/>
+    <menuitem id="menu_virtual_machine" name="Virtual Machines" parent="menu_virtual_machine_root" action="action_virtual_machine"/>
+</odoo>

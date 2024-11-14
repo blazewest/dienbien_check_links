@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_check_error,check.error,model_website_status,base.group_user,1,1,1,1
 access_ip_wan,ip.wan,model_ip_wan,base.group_user,1,1,1,1
 access_qrcode,qr.code.generator,model_qr_code_generator,base.group_user,1,1,1,1
+access_vms,virtual.machine,model_virtual_machine,base.group_user,1,1,1,1

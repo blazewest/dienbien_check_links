@@ -184,6 +184,11 @@ class WebsiteStatus(models.Model):
                 url = f"{protocol}://{record.name}"
                 try:
                     response = requests.get(url, headers=headers, verify=False)
+                    if response.status_code == 200:
+                        # Kiểm tra thêm nội dung trả về để phát hiện lỗi ứng dụng
+                        if "Server Error" in response.text or "Exception" in response.text or "Login failed" in response.text:
+                            return 'Error', 'Application Error detected in content'
+                        return 200, 'OK'
                     return response.status_code, response.reason
                 except requests.exceptions.RequestException as e:
                     return 'Error', str(e)

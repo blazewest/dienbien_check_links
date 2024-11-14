@@ -17,4 +17,4 @@ def check_website_status(url):
         print(f"Website {url} is down. Error: {e}")
 
 # Example usage
-check_website_status("http://bvdk.syt.dienbien.gov.vn")
+check_website_status("http://dienbien.dcs.vn/")
