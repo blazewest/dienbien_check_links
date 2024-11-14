@@ -14,6 +14,7 @@
         # 'data/email_template.xml',
         # 'data/server_action.xml',
         'views/virtual_machine_view.xml',
+        'views/telegraf_data_view.xml',
     ],
     'installable': True,
     'application': False,
