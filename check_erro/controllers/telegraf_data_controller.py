@@ -11,7 +11,8 @@ _logger = logging.getLogger(__name__)
 class TelegrafDataController(http.Controller):
 
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
-    def receive_telegraf_data(self, **data):
+    def receive_telegraf_data(self):
+        data = request.jsonrequest  # Thay vì **data
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
         print("Data received:", data)  # Kiểm tra dữ liệu nhận được
 
@@ -50,4 +51,3 @@ class TelegrafDataController(http.Controller):
 
         # Trả về JSON response hợp lệ
         return Response(json.dumps({'status': 'success', 'message': message}), content_type='application/json')
-
