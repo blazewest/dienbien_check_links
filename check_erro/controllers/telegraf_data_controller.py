@@ -2,19 +2,21 @@ from odoo import http
 from odoo.http import request
 import json
 import logging
+from odoo.http import Response
+
 
 _logger = logging.getLogger(__name__)
 
 
 class TelegrafDataController(http.Controller):
 
-    @http.route('/telegraf/data', type='http', auth='public', methods=['POST'], csrf=False)
+    @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **data):
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
         print("Data received:", data)  # Kiểm tra dữ liệu nhận được
-        # Xử lý dữ liệu như bình thường
+
         # Lấy các thông tin từ dữ liệu gửi lên
-        name = data.get('name', 'Unknown')  # Kiểm tra nếu không có 'name' sẽ gán 'Unknown'
+        name = data.get('name', 'Unknown')
         cpu_usage = data.get('cpu_usage', 0.0)
         memory_usage = data.get('memory_usage', 0.0)
         disk_usage = data.get('disk_usage', 0.0)
@@ -46,4 +48,6 @@ class TelegrafDataController(http.Controller):
             })
             message = f"Record {name} created successfully"
 
-        return {'status': 'success', 'message': message}
+        # Trả về JSON response hợp lệ
+        return Response(json.dumps({'status': 'success', 'message': message}), content_type='application/json')
+
