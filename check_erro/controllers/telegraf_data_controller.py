@@ -8,10 +8,11 @@ _logger = logging.getLogger(__name__)
 
 class TelegrafDataController(http.Controller):
 
-    @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
+    @http.route('/telegraf/data', type='http', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **data):
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
-        print("Data received:", data)
+        print("Data received:", data)  # Kiểm tra dữ liệu nhận được
+        # Xử lý dữ liệu như bình thường
         # Lấy các thông tin từ dữ liệu gửi lên
         name = data.get('name', 'Unknown')  # Kiểm tra nếu không có 'name' sẽ gán 'Unknown'
         cpu_usage = data.get('cpu_usage', 0.0)
