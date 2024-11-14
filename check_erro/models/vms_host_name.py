@@ -27,14 +27,29 @@ class VirtualMachine(models.Model):
             record.used_space = self._convert_to_gb(record.raw_used_space)
 
     def _convert_to_gb(self, value):
-        # Hàm chuyển đổi giá trị sang GB
+        """
+        Chuyển đổi giá trị dung lượng sang GB.
+
+        Parameters:
+        value (str): Giá trị dung lượng kèm đơn vị, ví dụ '2 TB', '500 MB', '1024 GB'
+
+        Returns:
+        float: Giá trị dung lượng sau khi chuyển đổi sang GB.
+        """
+        # Kiểm tra nếu value là None hoặc không phải là chuỗi
+        if not isinstance(value, str):
+            return 0.0
+
+        # Xử lý chuyển đổi dựa trên đơn vị của value
         if 'TB' in value:
             return float(value.replace('TB', '').strip()) * 1024  # 1 TB = 1024 GB
         elif 'GB' in value:
             return float(value.replace('GB', '').strip())
         elif 'MB' in value:
             return float(value.replace('MB', '').strip()) / 1024  # 1 GB = 1024 MB
-        # Thêm điều kiện khác nếu có đơn vị khác
-        return 0.0  # Giá trị mặc định nếu không xác định được đơn vị
+
+        # Giá trị mặc định nếu không xác định được đơn vị
+        return 0.0
+
 
 
