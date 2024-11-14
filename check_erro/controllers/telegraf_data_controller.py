@@ -11,10 +11,9 @@ class TelegrafDataController(http.Controller):
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **data):
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
-        print(data)
-
+        print("Data received:", data)
         # Lấy các thông tin từ dữ liệu gửi lên
-        name = data.get('name', 'Unknown')
+        name = data.get('name', 'Unknown')  # Kiểm tra nếu không có 'name' sẽ gán 'Unknown'
         cpu_usage = data.get('cpu_usage', 0.0)
         memory_usage = data.get('memory_usage', 0.0)
         disk_usage = data.get('disk_usage', 0.0)
