@@ -1,18 +1,15 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
 import json
 import logging
-from odoo.http import Response
-
 
 _logger = logging.getLogger(__name__)
-
 
 class TelegrafDataController(http.Controller):
 
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
-    def receive_telegraf_data(self):
-        data = request.jsonrequest  # Thay vì **data
+    def receive_telegraf_data(self, **kw):
+        data = request.httprequest.get_json()  # Lấy JSON từ httprequest
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
         print("Data received:", data)  # Kiểm tra dữ liệu nhận được
 
