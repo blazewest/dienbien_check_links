@@ -11,7 +11,6 @@ class TelegrafDataController(http.Controller):
     def receive_telegraf_data(self, **kw):
         data = request.httprequest.get_json()  # Lấy JSON từ httprequest
         _logger.info("Received data from Telegraf: %s", json.dumps(data))
-        print("Data received:", data)  # Kiểm tra dữ liệu nhận được
 
         # Lấy các thông tin từ dữ liệu gửi lên
         name = data.get('name', 'Unknown')
