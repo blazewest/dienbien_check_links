@@ -3,6 +3,7 @@ from odoo import http
 from odoo.http import request
 import json
 import logging
+from dateutil import parser
 
 _logger = logging.getLogger(__name__)
 
@@ -109,13 +110,19 @@ class TelegrafDataController(http.Controller):
                 })
 
     def _store_login_attempts(self, telegraf_data, metrics):
+        # Store login attempt information in one2many relation
         for metric in metrics:
             if metric.get("name") == "win_eventlog" and metric.get("tags", {}).get("EventID") in ["4625", "4624"]:
                 login_status = 'success' if metric["tags"]["EventID"] == "4624" else 'failure'
                 failure_reason = metric["fields"].get("Data_FailureReason", '') if login_status == 'failure' else ''
 
+                # Chuyển đổi thời gian từ định dạng ISO 8601
+                time_created = metric["fields"].get("TimeCreated", datetime.now())
+                if isinstance(time_created, str):  # Kiểm tra xem có phải là chuỗi hay không
+                    time_created = parser.isoparse(time_created)  # Chuyển sang kiểu datetime
+
                 request.env['login.attempt'].sudo().create({
-                    'login_date': metric["fields"].get("TimeCreated", datetime.now()),
+                    'login_date': time_created,
                     'username': metric["fields"].get("Data_TargetUserName", "Unknown"),
                     'ip_address': metric["fields"].get("Data_IpAddress", "Unknown"),
                     'status': login_status,
