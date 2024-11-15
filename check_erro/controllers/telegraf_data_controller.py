@@ -116,10 +116,10 @@ class TelegrafDataController(http.Controller):
                 login_status = 'success' if metric["tags"]["EventID"] == "4624" else 'failure'
                 failure_reason = metric["fields"].get("Data_FailureReason", '') if login_status == 'failure' else ''
 
-                # Chuyển đổi thời gian từ định dạng ISO 8601
+                # Chuyển đổi thời gian từ định dạng ISO 8601 và loại bỏ thông tin múi giờ
                 time_created = metric["fields"].get("TimeCreated", datetime.now())
                 if isinstance(time_created, str):  # Kiểm tra xem có phải là chuỗi hay không
-                    time_created = parser.isoparse(time_created)  # Chuyển sang kiểu datetime
+                    time_created = parser.isoparse(time_created).replace(tzinfo=None)  # Chuyển đổi sang naive datetime
 
                 request.env['login.attempt'].sudo().create({
                     'login_date': time_created,
