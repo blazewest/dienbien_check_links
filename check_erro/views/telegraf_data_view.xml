@@ -4,32 +4,89 @@
         <field name="model">telegraf.data</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="name"/>
-                <field name="timestamp"/>
-                <field name="cpu_usage"/>
-                <field name="memory_usage"/>
-                <field name="disk_usage"/>
-                <field name="network_in"/>
-                <field name="network_out"/>
+                <field name="host"/>
+                <field name="memory_used_percent"/>
+                <field name="tcp_established"/>
+                <field name="tcp_listen"/>
+                <field name="tcp_time_wait"/>
+                <field name="udp_socket"/>
             </tree>
         </field>
     </record>
 
+    <!-- Form View for Telegraf Data -->
     <record id="view_telegraf_data_form" model="ir.ui.view">
         <field name="name">telegraf.data.form</field>
         <field name="model">telegraf.data</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="timestamp"/>
-                        <field name="cpu_usage"/>
-                        <field name="memory_usage"/>
-                        <field name="disk_usage"/>
-                        <field name="network_in"/>
-                        <field name="network_out"/>
+                    <group string="Main Information">
+                        <field name="host"/>
+                        <field name="memory_total"/>
+                        <field name="memory_used"/>
+                        <field name="memory_available"/>
+                        <field name="memory_used_percent"/>
                     </group>
+                    <group string="Kết nối mạng">
+                        <field name="tcp_established"/>
+                        <field name="tcp_listen"/>
+                        <field name="tcp_time_wait"/>
+                        <field name="udp_socket"/>
+                    </group>
+                    <notebook>
+                        <page string="Thông tin đĩa">
+                            <field name="disk_info_ids">
+                                <tree editable="bottom">
+                                    <field name="device"/>
+                                    <field name="total"/>
+                                    <field name="used"/>
+                                    <field name="free"/>
+                                    <field name="used_percent"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Phản hồi của cổng">
+                            <field name="port_response_ids">
+                                <tree editable="bottom">
+                                    <field name="port"/>
+                                    <field name="protocol"/>
+                                    <field name="response_time"/>
+                                    <field name="result_type"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Phản hồi HTTP">
+                            <field name="http_response_ids">
+                                <tree editable="bottom">
+                                    <field name="url"/>
+                                    <field name="response_time"/>
+                                    <field name="http_response_code"/>
+                                    <field name="content_length"/>
+                                    <field name="result_type"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Nỗ lực đăng nhập">
+                            <field name="login_attempt_ids">
+                                <tree editable="bottom">
+                                    <field name="login_date"/>
+                                    <field name="username"/>
+                                    <field name="ip_address"/>
+                                    <field name="status"/>
+                                    <field name="failure_reason"/>
+                                    <field name="process_name"/>
+                                    <field name="logon_type"/>
+                                    <field name="event_id"/>
+                                    <field name="logon_domain"/>
+                                    <field name="timestamp"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
@@ -41,6 +98,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
+    <!-- Menu Items for Telegraf Data -->
     <menuitem id="menu_telegraf_data_root" name="Telegraf Data" sequence="10"/>
     <menuitem id="menu_telegraf_data" name="Data" parent="menu_telegraf_data_root" action="action_telegraf_data"/>
 </odoo>
