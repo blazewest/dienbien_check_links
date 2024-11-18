@@ -13,7 +13,7 @@ class TelegrafDataController(http.Controller):
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **kw):
         data = request.httprequest.get_json()
-        # _logger.info("Received data from Telegraf: %s", json.dumps(data))
+        _logger.info("Received data from Telegraf: %s", json.dumps(data))
 
         metrics = data.get('metrics', [])
         host_name = self._get_host_name(metrics)
