@@ -11,7 +11,7 @@
 
             <templates>
                 <t t-name="kanban-box">
-                    <div t-attf-style="background-color: #{'red' if record.memory_used_percent.raw_value >= 80 else 'green'};"
+                    <div t-att-style="record.memory_used_percent.raw_value >= 80 ? 'background-color:red;' : 'background-color:green;'"
                          class="o_kanban_record oe_kanban_global_click">
                         <div class="o_kanban_details">
                             <strong><t t-esc="record.host.value"/></strong>
