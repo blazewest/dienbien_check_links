@@ -6,6 +6,7 @@ class IpWan(models.Model):
     _description = 'IP Wan'
     _inherit = ['mail.thread', 'mail.activity.mixin']  # Đã kế thừa sẵn tracking
 
+
     name = fields.Char("domain", tracking=True)  # Theo dõi thay đổi của trường 'name'
     info_ip = fields.Char(string='IP WAN', required=False, tracking=True)  # Theo dõi thay đổi trường 'info_ip'
     Ngay = fields.Date(string='Ngày Khởi tạo', required=False, tracking=True)  # Theo dõi thay đổi trường 'Ngay'

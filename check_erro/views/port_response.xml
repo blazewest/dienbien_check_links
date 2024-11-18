@@ -5,6 +5,7 @@
         <field name="model">telegraf.port_response</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="host"/>
                 <field name="telegraf_data_id"/>
                 <field name="port"/>
                 <field name="protocol"/>

@@ -4,6 +4,7 @@ class LoginAttempt(models.Model):
     _name = 'login.attempt'
     _description = 'Thông Tin Đăng Nhập'
 
+    host = fields.Char(related='telegraf_data_id.host', string='Host', store=True, readonly=True)
     login_date = fields.Datetime(string="Thời Gian Đăng Nhập")
     username = fields.Char(string="Tên Người Dùng")
     ip_address = fields.Char(string="Địa Chỉ IP")

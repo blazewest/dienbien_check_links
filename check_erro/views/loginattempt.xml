@@ -5,6 +5,7 @@
         <field name="model">login.attempt</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="host"/>
                 <field name="telegraf_data_id"/>
                 <field name="login_date"/>
                 <field name="username"/>

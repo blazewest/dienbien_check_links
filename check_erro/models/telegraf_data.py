@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 class TelegrafData(models.Model):
     _name = 'telegraf.data'
     _description = 'Telegraf Data'
+    _rec_name = 'host'  # Đặt host là tên đại diện
 
     # Thông tin chính
     host = fields.Char(string='Host')
