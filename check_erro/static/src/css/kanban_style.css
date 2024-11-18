@@ -1,0 +1,7 @@
+.o_kanban_record.memory_high {
+    background-color: #ffcccc; /* Màu đỏ nhạt khi Memory Used >= 80% */
+}
+
+.o_kanban_record.memory_low {
+    background-color: #ccffcc; /* Màu xanh nhạt khi Memory Used < 80% */
+}

@@ -25,6 +25,7 @@
     'assets': {
             'web.assets_backend': [
                 'check_erro/static/src/img/logo.png',
+                'check_erro/static/src/css/kanban_style.css',
             ],
         },
 }
