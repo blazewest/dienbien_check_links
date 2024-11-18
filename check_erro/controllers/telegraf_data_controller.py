@@ -13,7 +13,7 @@ class TelegrafDataController(http.Controller):
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **kw):
         data = request.httprequest.get_json()
-        _logger.info("Received data from Telegraf: %s", json.dumps(data))
+        # _logger.info("Received data from Telegraf: %s", json.dumps(data))
 
         metrics = data.get('metrics', [])
         host_name = self._get_host_name(metrics)
@@ -27,16 +27,19 @@ class TelegrafDataController(http.Controller):
         if existing_telegraf_data:
             main_info = self._parse_main_info(metrics)
             existing_telegraf_data.sudo().write(main_info)
+            existing_telegraf_data.update_last_update_time()  # Cập nhật thời gian cuối khi có dữ liệu mới
             telegraf_data = existing_telegraf_data
         else:
             main_info = self._parse_main_info(metrics)
             telegraf_data = request.env['telegraf.data'].sudo().create(main_info)
+            telegraf_data.update_last_update_time()
 
         # Update or create One2many related data
         self._store_disk_info(telegraf_data, metrics)
         self._store_port_response(telegraf_data, metrics)
         self._store_http_response(telegraf_data, metrics)
         self._store_login_attempts(telegraf_data, metrics)
+        _logger.info("Update data from Telegraf: %s", host_name)
 
         return {"status": "success"}
 
@@ -59,12 +62,21 @@ class TelegrafDataController(http.Controller):
                     'memory_available': fields.get('available', 0) / (1024 ** 3),
                     'memory_used_percent': fields.get('used_percent', 0),
                 })
+
             elif name == 'netstat':
                 main_info.update({
                     'tcp_established': fields.get('tcp_established', 0),
                     'tcp_listen': fields.get('tcp_listen', 0),
                     'tcp_time_wait': fields.get('tcp_time_wait', 0),
                     'udp_socket': fields.get('udp_socket', 0),
+                })
+
+            elif name == 'system':
+                main_info.update({
+                    'cpu_load1': fields.get('load1', 0),
+                    'cpu_load5': fields.get('load5', 0),
+                    'cpu_load15': fields.get('load15', 0),
+                    'n_cpus': fields.get('n_cpus', 0),
                 })
         return main_info
 

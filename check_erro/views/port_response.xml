@@ -1,0 +1,29 @@
+<odoo>
+    <!-- Tree View for PortResponse -->
+    <record id="view_port_response_tree" model="ir.ui.view">
+        <field name="name">telegraf.port_response.tree</field>
+        <field name="model">telegraf.port_response</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="telegraf_data_id"/>
+                <field name="port"/>
+                <field name="protocol"/>
+                <field name="response_time"/>
+                <field name="result_type"/>
+                <field name="timestamp"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_port_response" model="ir.actions.act_window">
+        <field name="name">Port Response Information</field>
+        <field name="res_model">telegraf.port_response</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'telegraf_data_id': true}</field>
+
+    </record>
+
+    <!-- Menu Item -->
+
+</odoo>

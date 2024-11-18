@@ -1,0 +1,26 @@
+<odoo>
+    <record id="view_telegraf_disk_tree" model="ir.ui.view">
+        <field name="name">telegraf.disk.tree</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <tree>
+                    <field name="telegraf_data_id" />
+                    <field name="device" />
+                    <field name="total" />
+                    <field name="used" />
+                    <field name="free" />
+                    <field name="used_percent" />
+                    <field name="timestamp" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_telegraf_disk" model="ir.actions.act_window">
+        <field name="name">Disk Information</field>
+        <field name="res_model">telegraf.disk</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'telegraf_data_id': true}</field>
+    </record>
+
+
+</odoo>

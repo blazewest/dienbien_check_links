@@ -5,11 +5,11 @@ class HttpResponse(models.Model):
     _description = 'HTTP Response Information'
 
     url = fields.Char(string='URL')
-    response_time = fields.Float(string='Response Time (s)')
-    http_response_code = fields.Integer(string='HTTP Response Code')
-    content_length = fields.Integer(string='Content Length')
-    result_type = fields.Char(string='Result Type')
-    timestamp = fields.Datetime(string='Timestamp')  # Thời gian thu thập dữ liệu
+    response_time = fields.Float(string='Thời gian phản hồi (s)')
+    http_response_code = fields.Integer(string='Mã phản hồi HTTP')
+    content_length = fields.Integer(string='Độ dài nội dung')
+    result_type = fields.Char(string='Loại kết quả')
+    timestamp = fields.Datetime(string='Mốc thời gian')  # Thời gian thu thập dữ liệu
 
     # Reference to the main model
     telegraf_data_id = fields.Many2one('telegraf.data', string='Telegraf Data')

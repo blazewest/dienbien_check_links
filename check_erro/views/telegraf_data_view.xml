@@ -1,4 +1,40 @@
 <odoo>
+    <record id="view_telegraf_data_kanban" model="ir.ui.view">
+        <field name="name">telegraf.data.kanban</field>
+        <field name="model">telegraf.data</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="host"/>
+                <field name="memory_used_percent"/>
+                <field name="cpu_load1"/>
+                <field name="last_update"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="o_kanban_record">
+                            <div class="o_kanban_details">
+                                <strong><t t-esc="record.host.value"/></strong>
+                                <div>
+                                    <span>Memory Used: </span>
+                                    <progress max="100" t-att-value="record.memory_used_percent.raw_value"/>
+                                    <span><t t-esc="record.memory_used_percent.value"/>%</span>
+                                </div>
+                                <div>
+                                    <span>CPU Load (1 min): </span>
+                                    <span><t t-esc="record.cpu_load1.value"/></span>
+                                </div>
+                                <div>
+                                    <span>Last Update: </span>
+                                    <span><t t-esc="record.last_update.value"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
     <record id="view_telegraf_data_tree" model="ir.ui.view">
         <field name="name">telegraf.data.tree</field>
         <field name="model">telegraf.data</field>
@@ -21,7 +57,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <group string="Main Information">
+                    <group string="Thông tin chính">
                         <field name="host"/>
                         <field name="memory_total"/>
                         <field name="memory_used"/>
@@ -36,7 +72,7 @@
                     </group>
                     <notebook>
                         <page string="Thông tin đĩa">
-                            <field name="disk_info_ids">
+                            <field name="disk_info_ids" context="{'default_order': 'timestamp desc'}">
                                 <tree editable="bottom">
                                     <field name="device"/>
                                     <field name="total"/>
@@ -48,7 +84,7 @@
                             </field>
                         </page>
                         <page string="Phản hồi của cổng">
-                            <field name="port_response_ids">
+                            <field name="port_response_ids" context="{'default_order': 'timestamp desc'}">
                                 <tree editable="bottom">
                                     <field name="port"/>
                                     <field name="protocol"/>
@@ -59,7 +95,7 @@
                             </field>
                         </page>
                         <page string="Phản hồi HTTP">
-                            <field name="http_response_ids">
+                            <field name="http_response_ids" context="{'default_order': 'timestamp desc'}">
                                 <tree editable="bottom">
                                     <field name="url"/>
                                     <field name="response_time"/>
@@ -70,8 +106,8 @@
                                 </tree>
                             </field>
                         </page>
-                        <page string="Nỗ lực đăng nhập">
-                            <field name="login_attempt_ids">
+                        <page string="Thông tin đăng nhập">
+                            <field name="login_attempt_ids" context="{'default_order': 'timestamp desc'}">
                                 <tree editable="bottom">
                                     <field name="login_date"/>
                                     <field name="username"/>
@@ -95,10 +131,20 @@
     <record id="action_telegraf_data" model="ir.actions.act_window">
         <field name="name">Telegraf Data</field>
         <field name="res_model">telegraf.data</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,form</field>
     </record>
 
     <!-- Menu Items for Telegraf Data -->
-    <menuitem id="menu_telegraf_data_root" name="Telegraf Data" sequence="10"/>
-    <menuitem id="menu_telegraf_data" name="Data" parent="menu_telegraf_data_root" action="action_telegraf_data"/>
+    <menuitem id="menu_telegraf_data_root" name="Telegraf Data" sequence="1" web_icon="check_erro,static/src/img/logo.png"/>
+    <menuitem id="menu_telegraf_data" name="Data" parent="menu_telegraf_data_root" action="action_telegraf_data" sequence="1"/>
+
+    <menuitem id="menu_telegraf_disk_root" name="Thông Tin Ổ Đĩa" parent="menu_telegraf_data_root" action="action_telegraf_data" sequence="2"/>
+    <menuitem id="menu_telegraf_http_response_root" name="Phản Hồi HTTP" parent="menu_telegraf_data_root" action="action_telegraf_http_response" sequence="5"/>
+    <menuitem id="menu_login_attempt_root" name="Thông Tin Đăng Nhập" parent="menu_telegraf_data_root" action="action_login_attempt" sequence="3"/>
+    <menuitem id="menu_port_response_root" name="Phản hồi của cổng cụ thể" parent="menu_telegraf_data_root" action="action_port_response" sequence="4"/>
+
+
+
+
+
 </odoo>

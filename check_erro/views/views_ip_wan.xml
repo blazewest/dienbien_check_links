@@ -48,6 +48,6 @@
     </record>
 
     <!-- Menu item để truy cập model -->
-    <menuitem id="menu_ipwan_root" name="Quản lý IP WAN" sequence="1"/>
-    <menuitem id="menu_ipwan" name="IP WAN" parent="menu_ipwan_root" action="action_ipwan" sequence="2"/>
+    <menuitem id="menu_ipwan_root" name="Quản lý IP WAN" sequence="10"/>
+    <menuitem id="menu_ipwan" name="IP WAN" parent="menu_ipwan_root" action="action_ipwan" sequence="1"/>
 </odoo>

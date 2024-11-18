@@ -19,4 +19,4 @@ class LoginAttempt(models.Model):
     logon_type = fields.Char(string="Loại Đăng Nhập")
     event_id = fields.Char(string="ID Sự Kiện")
     logon_domain = fields.Char(string="Tên Miền Đăng Nhập")
-    timestamp = fields.Datetime(string='Timestamp')  # Thời gian thu thập dữ liệu
+    timestamp = fields.Datetime(string='Mốc thời gian')  # Thời gian thu thập dữ liệu
