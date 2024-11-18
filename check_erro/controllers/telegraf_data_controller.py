@@ -13,7 +13,7 @@ class TelegrafDataController(http.Controller):
     @http.route('/telegraf/data', type='json', auth='public', methods=['POST'], csrf=False)
     def receive_telegraf_data(self, **kw):
         data = request.httprequest.get_json()
-        _logger.info("Received data from Telegraf: %s", json.dumps(data))
+        # _logger.info("Received data from Telegraf: %s", json.dumps(data))
 
         metrics = data.get('metrics', [])
         host_name = self._get_host_name(metrics)
@@ -73,13 +73,10 @@ class TelegrafDataController(http.Controller):
 
             elif name == 'system' and 'load1' in fields and 'load5' in fields and 'load15' in fields:
                 # Chỉ cập nhật nếu các giá trị CPU thực sự tồn tại trong fields
-                _logger.info("System fields before parsing: %s", fields)
                 cpu_load1 = fields.get('load1', 0)
                 cpu_load5 = fields.get('load5', 0)
                 cpu_load15 = fields.get('load15', 0)
                 n_cpus = fields.get('n_cpus', 0)
-                _logger.info("Parsed CPU loads: load1=%s, load5=%s, load15=%s, n_cpus=%s", cpu_load1, cpu_load5,
-                             cpu_load15, n_cpus)
 
                 main_info.update({
                     'cpu_load1': round(cpu_load1, 6),
@@ -87,7 +84,6 @@ class TelegrafDataController(http.Controller):
                     'cpu_load15': round(cpu_load15, 6),
                     'n_cpus': n_cpus,
                 })
-                _logger.info("CPU fields after parsing: %s", main_info)
 
         return main_info
 
