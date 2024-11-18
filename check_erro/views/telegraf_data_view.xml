@@ -6,7 +6,7 @@
         <kanban>
             <field name="host"/>
             <field name="memory_used_percent"/>
-            <field name="cpu_load1"/>
+            <field name="n_cpus"/>
             <field name="last_update"/>
 
             <templates>
@@ -21,8 +21,8 @@
                                 <span><t t-esc="record.memory_used_percent.value"/>%</span>
                             </div>
                             <div>
-                                <span>CPU Load (1 min): </span>
-                                <span><t t-esc="record.cpu_load1.value"/></span>
+                                <span>Số lượng CPU: </span>
+                                <span><t t-esc="record.n_cpus.value"/></span>
                             </div>
                             <div>
                                 <span>Last Update: </span>

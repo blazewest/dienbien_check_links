@@ -84,9 +84,9 @@ class TelegrafDataController(http.Controller):
                              cpu_load15, n_cpus)
 
                 main_info.update({
-                    'cpu_load1': cpu_load1,
-                    'cpu_load5': cpu_load5,
-                    'cpu_load15': cpu_load15,
+                    'cpu_load1': round(cpu_load1, 6),
+                    'cpu_load5': round(cpu_load5, 6),
+                    'cpu_load15': round(cpu_load15, 6),
                     'n_cpus': n_cpus,
                 })
 
