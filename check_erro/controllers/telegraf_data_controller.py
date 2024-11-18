@@ -78,6 +78,8 @@ class TelegrafDataController(http.Controller):
                     'cpu_load15': fields.get('load15', 0),
                     'n_cpus': fields.get('n_cpus', 0),
                 })
+        _logger.info("CPU fields parsed: %s", main_info)
+
         return main_info
 
     def _store_disk_info(self, telegraf_data, metrics):
