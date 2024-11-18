@@ -59,11 +59,20 @@
             <form>
                 <sheet>
                     <group string="Thông tin chính">
-                        <field name="host"/>
-                        <field name="memory_total"/>
-                        <field name="memory_used"/>
-                        <field name="memory_available"/>
-                        <field name="memory_used_percent"/>
+                        <group>
+                           <field name="host"/>
+                            <field name="memory_total"/>
+                            <field name="memory_used"/>
+                            <field name="memory_available"/>
+                            <field name="memory_used_percent"/>
+                        </group>
+                        <group>
+                            <field name="cpu_load1"/>
+                            <field name="cpu_load5"/>
+                            <field name="cpu_load15"/>
+                            <field name="n_cpus"/>
+                        </group>
+
                     </group>
                     <group string="Kết nối mạng">
                         <field name="tcp_established"/>
