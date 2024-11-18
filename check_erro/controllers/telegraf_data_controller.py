@@ -72,6 +72,7 @@ class TelegrafDataController(http.Controller):
                 })
 
             elif name == 'system':
+                _logger.info("System fields before parsing: %s", fields)
                 main_info.update({
                     'cpu_load1': fields.get('load1', 0),
                     'cpu_load5': fields.get('load5', 0),
