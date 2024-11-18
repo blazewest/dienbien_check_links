@@ -138,7 +138,7 @@
     <menuitem id="menu_telegraf_data_root" name="Telegraf Data" sequence="1" web_icon="check_erro,static/src/img/logo.png"/>
     <menuitem id="menu_telegraf_data" name="Data" parent="menu_telegraf_data_root" action="action_telegraf_data" sequence="1"/>
 
-    <menuitem id="menu_telegraf_disk_root" name="Thông Tin Ổ Đĩa" parent="menu_telegraf_data_root" action="action_telegraf_data" sequence="2"/>
+    <menuitem id="menu_telegraf_disk_root" name="Thông Tin Ổ Đĩa" parent="menu_telegraf_data_root" action="action_telegraf_disk" sequence="2"/>
     <menuitem id="menu_telegraf_http_response_root" name="Phản Hồi HTTP" parent="menu_telegraf_data_root" action="action_telegraf_http_response" sequence="5"/>
     <menuitem id="menu_login_attempt_root" name="Thông Tin Đăng Nhập" parent="menu_telegraf_data_root" action="action_login_attempt" sequence="3"/>
     <menuitem id="menu_port_response_root" name="Phản hồi của cổng cụ thể" parent="menu_telegraf_data_root" action="action_port_response" sequence="4"/>
