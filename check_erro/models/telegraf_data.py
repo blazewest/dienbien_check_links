@@ -6,6 +6,7 @@ class TelegrafData(models.Model):
     _name = 'telegraf.data'
     _description = 'Telegraf Data'
     _rec_name = 'host'  # Đặt host là tên đại diện
+    _order = 'memory_used_percent desc'
 
     # Thông tin chính
     host = fields.Char(string='Host')
