@@ -4,7 +4,6 @@ class DiskInfo(models.Model):
     _name = 'telegraf.disk'
     _description = 'Disk Information'
 
-    host = fields.Char(related='telegraf_data_id.host', string='Host', store=True, readonly=True)
     device = fields.Char(string='Device')
     total = fields.Float(string='Tổng dung lượng (GB)')
     used = fields.Float(string='Dung lượng đã sử dụng (GB)')

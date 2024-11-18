@@ -5,7 +5,6 @@ class PortResponse(models.Model):
     _name = 'telegraf.port_response'
     _description = 'Port Response Information'
 
-    host = fields.Char(related='telegraf_data_id.host', string='Host', store=True, readonly=True)
     port = fields.Char(string='Port')
     protocol = fields.Char(string='Giao thức')
     response_time = fields.Float(string='Thời gian phản hồi (s)')

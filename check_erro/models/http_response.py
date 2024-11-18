@@ -4,7 +4,6 @@ class HttpResponse(models.Model):
     _name = 'telegraf.http_response'
     _description = 'HTTP Response Information'
 
-    host = fields.Char(related='telegraf_data_id.host', string='Host', store=True, readonly=True)
     url = fields.Char(string='URL')
     response_time = fields.Float(string='Thời gian phản hồi (s)')
     http_response_code = fields.Integer(string='Mã phản hồi HTTP')
