@@ -3,6 +3,7 @@ from odoo import models, fields
 class DiskInfo(models.Model):
     _name = 'telegraf.disk'
     _description = 'Disk Information'
+    _order = 'timestamp desc'
 
     device = fields.Char(string='Device')
     total = fields.Float(string='Tổng dung lượng (GB)')

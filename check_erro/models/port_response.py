@@ -4,6 +4,7 @@ from odoo import models, fields
 class PortResponse(models.Model):
     _name = 'telegraf.port_response'
     _description = 'Port Response Information'
+    _order = 'timestamp desc'
 
     port = fields.Char(string='Port')
     protocol = fields.Char(string='Giao thức')

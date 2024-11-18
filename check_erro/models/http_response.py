@@ -3,6 +3,7 @@ from odoo import models, fields
 class HttpResponse(models.Model):
     _name = 'telegraf.http_response'
     _description = 'HTTP Response Information'
+    _order = 'timestamp desc'
 
     url = fields.Char(string='URL')
     response_time = fields.Float(string='Thời gian phản hồi (s)')

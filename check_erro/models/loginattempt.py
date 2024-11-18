@@ -3,6 +3,7 @@ from odoo import models, fields
 class LoginAttempt(models.Model):
     _name = 'login.attempt'
     _description = 'Thông Tin Đăng Nhập'
+    _order = 'timestamp desc'
 
     login_date = fields.Datetime(string="Thời Gian Đăng Nhập")
     username = fields.Char(string="Tên Người Dùng")
