@@ -63,7 +63,7 @@ class TelegrafDataController(http.Controller):
                     'memory_used_percent': fields.get('used_percent', 0),
                 })
 
-            if name == 'netstat':
+            elif name == 'netstat':
                 main_info.update({
                     'tcp_established': fields.get('tcp_established', 0),
                     'tcp_listen': fields.get('tcp_listen', 0),
@@ -71,7 +71,7 @@ class TelegrafDataController(http.Controller):
                     'udp_socket': fields.get('udp_socket', 0),
                 })
 
-            if name == 'system':
+            elif name == 'system':
                 main_info.update({
                     'cpu_load1': fields.get('load1', 0),
                     'cpu_load5': fields.get('load5', 0),
