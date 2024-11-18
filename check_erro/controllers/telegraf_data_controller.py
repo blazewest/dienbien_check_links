@@ -71,15 +71,28 @@ class TelegrafDataController(http.Controller):
                     'udp_socket': fields.get('udp_socket', 0),
                 })
 
+
             elif name == 'system':
+                # Log fields to ensure they contain correct values
                 _logger.info("System fields before parsing: %s", fields)
+                # Extract CPU load and log to check each value
+                cpu_load1 = fields.get('load1', 0)
+                cpu_load5 = fields.get('load5', 0)
+                cpu_load15 = fields.get('load15', 0)
+                n_cpus = fields.get('n_cpus', 0)
+                _logger.info("Parsed CPU loads: load1=%s, load5=%s, load15=%s, n_cpus=%s", cpu_load1, cpu_load5,
+                             cpu_load15, n_cpus)
+
                 main_info.update({
-                    'cpu_load1': fields.get('load1', 0),
-                    'cpu_load5': fields.get('load5', 0),
-                    'cpu_load15': fields.get('load15', 0),
-                    'n_cpus': fields.get('n_cpus', 0),
+                    'cpu_load1': cpu_load1,
+                    'cpu_load5': cpu_load5,
+                    'cpu_load15': cpu_load15,
+                    'n_cpus': n_cpus,
                 })
-        _logger.info("CPU fields parsed: %s", main_info)
+
+                # Log main_info after adding CPU fields
+
+                _logger.info("CPU fields after parsing: %s", main_info)
 
         return main_info
 
