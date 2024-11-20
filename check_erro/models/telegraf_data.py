@@ -87,13 +87,33 @@ class TelegrafData(models.Model):
         ])
 
         for record in records:
-            # Tạo thông báo cảnh báo
-            message = (
-                f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
-                f"Host: {record.host}\n"
-                f"RAM đã sử dụng: {record.memory_used_percent:.2f}%\n"
-                f"Số ổ đĩa trên 80%: {record.critical_disks}\n"
-            )
+            # Tạo thông báo dựa trên điều kiện
+            if record.memory_used_percent > 80 and record.critical_disks > 0:
+                # Cả RAM > 80% và ổ đĩa > 80%
+                message = (
+                    f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
+                    f"Host: {record.host}\n"
+                    f"RAM đã sử dụng: {record.memory_used_percent:.2f}%\n"
+                    f"Số ổ đĩa trên 80%: {record.critical_disks}\n"
+                )
+            elif record.memory_used_percent > 80:
+                # Chỉ RAM > 80%
+                message = (
+                    f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
+                    f"Host: {record.host}\n"
+                    f"RAM đã sử dụng: {record.memory_used_percent:.2f}%\n"
+                )
+            elif record.critical_disks > 0:
+                # Chỉ ổ đĩa > 80%
+                message = (
+                    f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
+                    f"Host: {record.host}\n"
+                    f"Số ổ đĩa trên 80%: {record.critical_disks}\n"
+                )
+            else:
+                # Không có cảnh báo (trường hợp này sẽ không xảy ra do bộ lọc)
+                continue
+
             # Gửi thông báo qua Telegram
             try:
                 record.telegram_main_id.send_message(message)
