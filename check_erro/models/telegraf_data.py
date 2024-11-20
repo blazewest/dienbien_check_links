@@ -109,3 +109,40 @@ class TelegrafData(models.Model):
                     'func': 'cron_send_telegram_alerts',
                 })
 
+    @api.model
+    def cron_check_server_signal(self):
+        # Lấy thời gian hiện tại
+        current_time = fields.Datetime.now()
+        # Tính thời gian 10 phút trước
+        ten_minutes_ago = current_time - timedelta(minutes=10)
+
+        # Lọc các bản ghi thỏa mãn điều kiện
+        records = self.search([
+            ('notify_telegram', '=', True),  # Chỉ bản ghi có thông báo telegram
+            ('telegram_main_id', '!=', False),  # Đã cấu hình Telegram Bot
+            ('last_update', '<', ten_minutes_ago)  # Cập nhật cuối hơn 10 phút trước
+        ])
+
+        for record in records:
+            # Tạo thông báo cảnh báo
+            message = (
+                f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
+                f"Host: {record.host}\n"
+                f"Trạng thái: Không nhận tín hiệu từ server.\n"
+                f"Lần cập nhật cuối: {record.last_update}\n"
+            )
+
+            # Gửi thông báo qua Telegram
+            try:
+                record.telegram_main_id.send_message(message)
+            except UserError as e:
+                # Ghi log nếu gửi thông báo thất bại
+                self.env['ir.logging'].create({
+                    'name': 'Telegram Signal Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send alert for host {record.host}: {str(e)}",
+                    'path': 'telegraf.data',
+                    'line': '0',
+                    'func': 'cron_check_server_signal',
+                })
