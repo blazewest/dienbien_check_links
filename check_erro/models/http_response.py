@@ -68,7 +68,7 @@ class HttpResponseNotification(models.Model):
 
     @api.model
     def cron_notify_http_errors(self):
-        # Lấy tất cả các bản ghi có lỗi HTTP
+        # Lấy tất cả các bản ghi có lỗi HTTP chưa được thông báo
         error_records = self.search([
             ('notify_telegram', '=', True),
             ('telegram_http_id', '!=', False),
@@ -87,7 +87,7 @@ class HttpResponseNotification(models.Model):
                     f" 🛑Mã phản hồi: {record.http_response_code}\n"
                 )
                 record.telegram_http_id.send_message(message)
-                record.write({'is_notified': True})  # Đánh dấu đã gửi thông báo lỗi
+                record.write({'is_notified': True, 'is_recovered': False})  # Đánh dấu đã gửi thông báo lỗi
             except Exception as e:
                 # Ghi log lỗi
                 self.env['ir.logging'].create({
@@ -100,12 +100,13 @@ class HttpResponseNotification(models.Model):
                     'func': 'cron_notify_http_errors',
                 })
 
-        # Lấy tất cả các bản ghi đã phục hồi
+        # Lấy tất cả các bản ghi đã phục hồi và chưa thông báo phục hồi
         recovered_records = self.search([
             ('notify_telegram', '=', True),
             ('telegram_http_id', '!=', False),
             ('http_response_code', 'in', [200, 302]),
-            ('is_recovered', '=', False)
+            ('is_recovered', '=', False),
+            ('is_notified', '=', True)  # Chỉ gửi thông báo nếu trước đó đã có thông báo lỗi
         ])
 
         for record in recovered_records:
@@ -131,5 +132,6 @@ class HttpResponseNotification(models.Model):
                     'line': '0',
                     'func': 'cron_notify_http_errors',
                 })
+
 
 
