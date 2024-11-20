@@ -165,7 +165,9 @@ class TelegrafDataController(http.Controller):
     def _store_login_attempts(self, telegraf_data, metrics):
         # Store login attempt information in one2many relation
         for metric in metrics:
+            # Kiểm tra nguồn dữ liệu (Windows hoặc Ubuntu)
             if metric.get("name") == "win_eventlog" and metric.get("tags", {}).get("EventID") in ["4625", "4624"]:
+                # Xử lý đăng nhập từ Windows Event Log
                 login_status = 'success' if metric["tags"]["EventID"] == "4624" else 'failure'
                 failure_reason = metric["fields"].get("Data_FailureReason", '') if login_status == 'failure' else ''
 
@@ -174,6 +176,7 @@ class TelegrafDataController(http.Controller):
                 if isinstance(time_created, str):  # Kiểm tra xem có phải là chuỗi hay không
                     time_created = parser.isoparse(time_created).replace(tzinfo=None)  # Chuyển đổi sang naive datetime
 
+                # Tạo bản ghi trong hệ thống
                 request.env['login.attempt'].sudo().create({
                     'login_date': time_created,
                     'username': metric["fields"].get("Data_TargetUserName", "Unknown"),
@@ -184,6 +187,28 @@ class TelegrafDataController(http.Controller):
                     'logon_type': metric["fields"].get("Data_LogonType", ""),
                     'event_id': metric["tags"].get("EventID", ""),
                     'logon_domain': metric["fields"].get("Data_SubjectDomainName", ""),
+                    'timestamp': datetime.now(),
+                    'telegraf_data_id': telegraf_data.id,
+                })
+
+            elif metric.get("name") == "tail":  # Xử lý log từ Ubuntu
+                # Phân tích log đăng nhập từ Ubuntu
+                login_status = metric["fields"].get("status", "unknown")
+                time_created = metric["fields"].get("timestamp", datetime.now())
+                if isinstance(time_created, str):  # Chuyển đổi chuỗi thời gian
+                    time_created = parser.isoparse(time_created).replace(tzinfo=None)
+
+                # Tạo bản ghi trong hệ thống
+                request.env['login.attempt'].sudo().create({
+                    'login_date': time_created,
+                    'username': metric["fields"].get("user", "Unknown"),
+                    'ip_address': metric["fields"].get("ip", "Unknown"),
+                    'status': login_status,
+                    'failure_reason': '',  # Không có thông tin lỗi từ Ubuntu log
+                    'process_name': '',  # Không có thông tin process từ Ubuntu log
+                    'logon_type': '',  # Không có loại đăng nhập từ Ubuntu log
+                    'event_id': '',  # Không có EventID từ Ubuntu log
+                    'logon_domain': '',  # Không có domain từ Ubuntu log
                     'timestamp': datetime.now(),
                     'telegraf_data_id': telegraf_data.id,
                 })
