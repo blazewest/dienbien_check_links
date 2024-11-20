@@ -44,8 +44,8 @@ class TelegrafData(models.Model):
 
     # nhan thong bao tele
     notify_telegram = fields.Boolean(string='Thông báo telegram', required=False, default=True)
-    telegram_device_id = fields.Many2one(comodel_name='telegram.bot',string='Telegram', required=False, default=lambda self: self._get_default_telegram_bot())
-    telegram_http_id = fields.Many2one(comodel_name='telegram.bot', string='Telegram', required=False, default=lambda self: self._get_default_telegram_bot())
+    telegram_device_id = fields.Many2one(comodel_name='telegram.bot',string='Cảnh báo device', required=False, default=lambda self: self._get_default_telegram_bot())
+    telegram_http_id = fields.Many2one(comodel_name='telegram.bot', string='Cảnh báo http', required=False, default=lambda self: self._get_default_telegram_bot())
     @api.constrains('host')
     def _check_host_unique(self):
         for record in self:
