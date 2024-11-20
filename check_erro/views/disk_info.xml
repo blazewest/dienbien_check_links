@@ -15,10 +15,58 @@
         </field>
     </record>
 
+    <record id="view_telegraf_disk_pivot" model="ir.ui.view">
+        <field name="name">telegraf.disk.pivot</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <pivot string="Disk Information">
+                <field name="device" type="row"/>
+                <field name="timestamp" interval="day" type="column"/>
+                <field name="total" type="measure"/>
+                <field name="used" type="measure"/>
+                <field name="free" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_telegraf_disk_graph" model="ir.ui.view">
+        <field name="name">telegraf.disk.graph</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <graph string="Disk Usage">
+                <field name="timestamp" type="row" interval="day"/>
+                <field name="used_percent" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_telegraf_disk_graph_usage" model="ir.ui.view">
+        <field name="name">telegraf.disk.graph.usage</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <graph string="Disk Usage by Device">
+                <field name="device" type="row"/>
+                <field name="used" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_telegraf_disk_graph_pie" model="ir.ui.view">
+        <field name="name">telegraf.disk.graph.pie</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <graph string="Critical Disk Usage" type="pie">
+                <field name="device" type="row"/>
+                <field name="used_percent" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+
     <record id="action_telegraf_disk" model="ir.actions.act_window">
         <field name="name">Disk Information</field>
         <field name="res_model">telegraf.disk</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,pivot,graph</field>
         <field name="context">{'group_by': 'telegraf_data_id'}</field>
     </record>
 
