@@ -162,18 +162,18 @@ class TelegrafDataController(http.Controller):
         return fields, tags, url, http_response_code
 
     def _create_http_response(self, telegraf_data, fields, tags, url, http_response_code):
-        self.env['telegraf.http_response'].sudo().create({
+        request.env['telegraf.http_response'].sudo().create({
             'url': url,
             'response_time': fields.get('response_time', 0),
             'http_response_code': http_response_code,
             'content_length': fields.get('content_length', 0),
             'result_type': fields.get('result_type', 'Unknown'),
-            'timestamp': fields.Datetime.now(),
+            'timestamp': datetime.now(),
             'telegraf_data_id': telegraf_data.id,
         })
 
     def _update_or_create_notification(self, telegraf_data, fields, url, http_response_code):
-        notification_model = self.env['telegraf.http_response_notification'].sudo()
+        notification_model = request.env['telegraf.http_response_notification'].sudo()
         existing_notification = notification_model.search([
             ('url', '=', url),
             ('telegraf_data_id', '=', telegraf_data.id)
@@ -185,7 +185,7 @@ class TelegrafDataController(http.Controller):
                 'http_response_code': http_response_code,
                 'content_length': fields.get('content_length', 0),
                 'result_type': fields.get('result_type', 'Unknown'),
-                'timestamp': fields.Datetime.now(),
+                'timestamp': datetime.now(),
             })
         else:
             notification_model.create({
@@ -194,12 +194,12 @@ class TelegrafDataController(http.Controller):
                 'http_response_code': http_response_code,
                 'content_length': fields.get('content_length', 0),
                 'result_type': fields.get('result_type', 'Unknown'),
-                'timestamp': fields.Datetime.now(),
+                'timestamp': datetime.now(),
                 'telegraf_data_id': telegraf_data.id,
             })
 
     def _update_telegraf_data(self, telegraf_data, unique_urls, error_urls):
-        telegraf_data.sudo().write({
+        request.env['telegraf.data'].sudo().browse(telegraf_data.id).write({
             'web_count': len(unique_urls),  # Số lượng web là kích thước của tập hợp unique_urls
             'web_error_count': len(error_urls),  # Số lượng web hỏng là kích thước của tập hợp error_urls
         })
