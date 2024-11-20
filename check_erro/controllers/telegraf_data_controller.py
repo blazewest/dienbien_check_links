@@ -88,18 +88,35 @@ class TelegrafDataController(http.Controller):
         return main_info
 
     def _store_disk_info(self, telegraf_data, metrics):
+        disk_count = 0
+        critical_disks = 0
+
         for metric in metrics:
             if metric.get('name') == 'disk':
                 fields = metric.get('fields', {})
+                used_percent = fields.get('used_percent', 0)
+
+                # Tạo bản ghi thông tin đĩa
                 request.env['telegraf.disk'].sudo().create({
                     'device': metric.get('tags', {}).get('device', 'Unknown'),
                     'total': fields.get('total', 0) / (1024 ** 3),
                     'used': fields.get('used', 0) / (1024 ** 3),
                     'free': fields.get('free', 0) / (1024 ** 3),
-                    'used_percent': fields.get('used_percent', 0),
+                    'used_percent': used_percent,
                     'timestamp': datetime.now(),
                     'telegraf_data_id': telegraf_data.id,
                 })
+
+                # Cập nhật số lượng đĩa và đĩa "critical"
+                disk_count += 1
+                if used_percent > 80:
+                    critical_disks += 1
+
+        # Cập nhật các trường mới trong telegraf_data
+        telegraf_data.sudo().write({
+            'disk_count': disk_count,
+            'critical_disks': critical_disks,
+        })
 
     def _store_port_response(self, telegraf_data, metrics):
         for metric in metrics:

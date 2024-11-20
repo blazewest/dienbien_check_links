@@ -71,6 +71,8 @@
                             <field name="cpu_load5"/>
                             <field name="cpu_load15"/>
                             <field name="n_cpus"/>
+                            <field name="disk_count"/>
+                            <field name="critical_disks"/>
                         </group>
 
                     </group>

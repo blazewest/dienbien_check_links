@@ -21,6 +21,9 @@ class TelegrafData(models.Model):
     cpu_load15 = fields.Float(string='CPU Load 15 Minutes')
     n_cpus = fields.Integer(string='Số lượng CPU')
 
+    disk_count = fields.Integer(string='Số lượng ổ đĩa', default=0)
+    critical_disks = fields.Integer(string='Số ổ đĩa trên 80%', default=0)
+
     # Thời gian cập nhật cuối và cảnh báo
     last_update = fields.Datetime(string='Lần cập nhật cuối', default=lambda self: fields.Datetime.now())
     is_active = fields.Boolean(string='Đang hoạt động', default=True)
