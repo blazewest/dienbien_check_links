@@ -12,7 +12,7 @@
                 <field name="web_error_count"/>
                 <templates>
                     <t t-name="kanban-box">
-                        <div t-att-style="record.critical_disks.raw_value > 0 ? 'background-color:red;' : 'background-color:green;'"
+                        <div t-att-style="record.memory_used_percent.raw_value > 80 ? 'background-color:red;' : 'background-color:blue;'"
                              class="o_kanban_record oe_kanban_global_click">
                             <div class="o_kanban_details">
                                 <strong><t t-esc="record.host.value"/></strong>
@@ -37,7 +37,7 @@
                                 </div>
                                 <div>
                                     <span>Số lượng web hỏng: </span>
-                                    <span>
+                                    <span t-att-style="record.web_error_count.raw_value > 0 ? 'color:red;' : 'color:black;'">
                                         <t t-esc="record.web_error_count.value"/>
                                     </span>
                                 </div>
