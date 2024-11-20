@@ -35,6 +35,12 @@
                                         <t t-esc="record.critical_disks.value"/>
                                     </span>
                                 </div>
+                                <div>
+                                    <span>Số lượng web hỏng: </span>
+                                    <span>
+                                        <t t-esc="record.web_error_count.value"/>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </t>
@@ -52,9 +58,10 @@
                 <field name="host"/>
                 <field name="memory_used_percent"/>
                 <field name="tcp_established"/>
-                <field name="tcp_listen"/>
-                <field name="tcp_time_wait"/>
-                <field name="udp_socket"/>
+                <field name="n_cpus"/>
+                <field name="critical_disks"/>
+                <field name="last_update"/>
+                <field name="web_error_count"/>
             </tree>
         </field>
     </record>
@@ -81,14 +88,21 @@
                             <field name="n_cpus"/>
                             <field name="disk_count"/>
                             <field name="critical_disks"/>
+
                         </group>
 
                     </group>
                     <group string="Kết nối mạng">
-                        <field name="tcp_established"/>
-                        <field name="tcp_listen"/>
-                        <field name="tcp_time_wait"/>
-                        <field name="udp_socket"/>
+                        <group>
+                            <field name="tcp_established"/>
+                            <field name="tcp_listen"/>
+                            <field name="tcp_time_wait"/>
+                            <field name="udp_socket"/>
+                        </group>
+                        <group>
+                            <field name="web_count"/>
+                            <field name="web_error_count"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Thông tin đĩa">

@@ -23,6 +23,8 @@ class TelegrafData(models.Model):
 
     disk_count = fields.Integer(string='Số lượng ổ đĩa', default=0)
     critical_disks = fields.Integer(string='Số ổ đĩa trên 80%', default=0)
+    web_count = fields.Integer(string='Số lượng web', default=0)
+    web_error_count = fields.Integer(string='Số lượng web hỏng', default=0)
 
     # Thời gian cập nhật cuối và cảnh báo
     last_update = fields.Datetime(string='Lần cập nhật cuối', default=lambda self: fields.Datetime.now())

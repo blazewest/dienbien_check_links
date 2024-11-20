@@ -132,18 +132,35 @@ class TelegrafDataController(http.Controller):
                 })
 
     def _store_http_response(self, telegraf_data, metrics):
+        web_count = 0
+        web_error_count = 0
+
         for metric in metrics:
             if metric.get('name') == 'http_response':
                 fields = metric.get('fields', {})
+                http_response_code = fields.get('http_response_code', 0)
+
+                # Tạo bản ghi HTTP response
                 request.env['telegraf.http_response'].sudo().create({
                     'url': metric.get('tags', {}).get('server', 'Unknown'),
                     'response_time': fields.get('response_time', 0),
-                    'http_response_code': fields.get('http_response_code', 0),
+                    'http_response_code': http_response_code,
                     'content_length': fields.get('content_length', 0),
                     'result_type': fields.get('result_type', 'Unknown'),
                     'timestamp': datetime.now(),
                     'telegraf_data_id': telegraf_data.id,
                 })
+
+                # Tăng số lượng web và kiểm tra web hỏng
+                web_count += 1
+                if http_response_code not in [200, 302]:  # Nếu mã HTTP không phải 200 hoặc 302
+                    web_error_count += 1
+
+        # Cập nhật các trường mới vào `telegraf_data`
+        telegraf_data.sudo().write({
+            'web_count': web_count,
+            'web_error_count': web_error_count,
+        })
 
     def _store_login_attempts(self, telegraf_data, metrics):
         # Store login attempt information in one2many relation
