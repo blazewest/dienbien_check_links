@@ -1,40 +1,48 @@
 <odoo>
     <record id="view_telegraf_data_kanban" model="ir.ui.view">
-    <field name="name">telegraf.data.kanban</field>
-    <field name="model">telegraf.data</field>
-    <field name="arch" type="xml">
-        <kanban>
-            <field name="host"/>
-            <field name="memory_used_percent"/>
-            <field name="n_cpus"/>
-            <field name="last_update"/>
+        <field name="name">telegraf.data.kanban</field>
+        <field name="model">telegraf.data</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="host"/>
+                <field name="memory_used_percent"/>
+                <field name="n_cpus"/>
+                <field name="last_update"/>
+                <field name="critical_disks"/> <!-- Thêm trường mới -->
 
-            <templates>
-                <t t-name="kanban-box">
-                    <div t-att-style="record.memory_used_percent.raw_value >= 80 ? 'background-color:red;' : 'background-color:green;'"
-                         class="o_kanban_record oe_kanban_global_click">
-                        <div class="o_kanban_details">
-                            <strong><t t-esc="record.host.value"/></strong>
-                            <div>
-                                <span>Memory Used: </span>
-                                <progress max="100" t-att-value="record.memory_used_percent.raw_value"/>
-                                <span><t t-esc="record.memory_used_percent.value"/>%</span>
-                            </div>
-                            <div>
-                                <span>Số lượng CPU: </span>
-                                <span><t t-esc="record.n_cpus.value"/></span>
-                            </div>
-                            <div>
-                                <span>Last Update: </span>
-                                <span><t t-esc="record.last_update.value"/></span>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-att-style="record.critical_disks.raw_value > 0 ? 'background-color:red;' : 'background-color:green;'"
+                             class="o_kanban_record oe_kanban_global_click">
+                            <div class="o_kanban_details">
+                                <strong><t t-esc="record.host.value"/></strong>
+                                <div>
+                                    <span>Memory Used: </span>
+                                    <progress max="100" t-att-value="record.memory_used_percent.raw_value"/>
+                                    <span><t t-esc="record.memory_used_percent.value"/>%</span>
+                                </div>
+                                <div>
+                                    <span>Số lượng CPU: </span>
+                                    <span><t t-esc="record.n_cpus.value"/></span>
+                                </div>
+                                <div>
+                                    <span>Last Update: </span>
+                                    <span><t t-esc="record.last_update.value"/></span>
+                                </div>
+                                <div>
+                                    <span>Số ổ đĩa nguy cấp: </span>
+                                    <span t-att-style="record.critical_disks.raw_value > 0 ? 'color:white;' : 'color:black;'">
+                                        <t t-esc="record.critical_disks.value"/>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </t>
-            </templates>
-        </kanban>
-    </field>
-</record>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
 
     <record id="view_telegraf_data_tree" model="ir.ui.view">
         <field name="name">telegraf.data.tree</field>
