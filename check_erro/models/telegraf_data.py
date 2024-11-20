@@ -166,3 +166,14 @@ class TelegrafData(models.Model):
                     'line': '0',
                     'func': 'cron_check_server_signal',
                 })
+
+    @api.multi
+    def unlink(self):
+        for record in self:
+            # Xóa tất cả các bản ghi liên quan trong telegraf.http_response_notification
+            self.env['telegraf.http_response_notification'].sudo().search([
+                ('telegraf_data_id', '=', record.id)
+            ]).unlink()
+
+        # Xóa bản ghi chính
+        return super(TelegrafData, self).unlink()
