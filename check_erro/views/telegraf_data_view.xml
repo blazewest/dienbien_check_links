@@ -32,7 +32,7 @@
                                 </div>
                                 <div>
                                     <span t-att-style="record.critical_disks.raw_value > 0 ? 'color:red;' : 'color:black;'">
-                                        Số ổ đĩa nguy cấp: </span>
+                                        Số ổ đĩa đầy: </span>
                                     <span t-att-style="record.critical_disks.raw_value > 0 ? 'color:red;' : 'color:black;'">
                                         <t t-esc="record.critical_disks.value"/>
                                     </span>

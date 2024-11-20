@@ -44,6 +44,7 @@ class HttpResponseNotification(models.Model):
     # Trạng thái thông báo
     is_notified = fields.Boolean(string='Đã thông báo lỗi', default=False)
     is_recovered = fields.Boolean(string='Đã thông báo phục hồi', default=False)
+    last_notification_time = fields.Datetime(string='Thời gian thông báo gần nhất')
 
     # Unique constraint on 'url' and 'telegraf_data_id'
     @api.constrains('url', 'telegraf_data_id')
@@ -68,12 +69,11 @@ class HttpResponseNotification(models.Model):
 
     @api.model
     def cron_notify_http_errors(self):
-        # Lấy tất cả các bản ghi có lỗi HTTP chưa được thông báo
+        # Lấy tất cả các bản ghi có lỗi HTTP
         error_records = self.search([
             ('notify_telegram', '=', True),
             ('telegram_http_id', '!=', False),
             ('http_response_code', 'not in', [200, 302]),
-            ('is_notified', '=', False)
         ])
 
         for record in error_records:
@@ -87,7 +87,9 @@ class HttpResponseNotification(models.Model):
                     f" 🛑Mã phản hồi: {record.http_response_code}\n"
                 )
                 record.telegram_http_id.send_message(message)
-                record.write({'is_notified': True, 'is_recovered': False})  # Đánh dấu đã gửi thông báo lỗi
+                # Cập nhật thời gian thông báo lỗi lần cuối
+                record.write(
+                    {'is_notified': True, 'is_recovered': False, 'last_notification_time': fields.Datetime.now()})
             except Exception as e:
                 # Ghi log lỗi
                 self.env['ir.logging'].create({
@@ -120,7 +122,8 @@ class HttpResponseNotification(models.Model):
                     "🟢 Trạng thái: Đã hoạt động\n"
                 )
                 record.telegram_http_id.send_message(message)
-                record.write({'is_recovered': True})  # Đánh dấu đã gửi thông báo phục hồi
+                # Đánh dấu đã phục hồi
+                record.write({'is_recovered': True, 'last_notification_time': fields.Datetime.now()})
             except Exception as e:
                 # Ghi log lỗi
                 self.env['ir.logging'].create({
@@ -132,6 +135,7 @@ class HttpResponseNotification(models.Model):
                     'line': '0',
                     'func': 'cron_notify_http_errors',
                 })
+
 
 
 

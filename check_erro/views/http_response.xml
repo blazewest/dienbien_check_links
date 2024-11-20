@@ -37,11 +37,35 @@
             </tree>
         </field>
     </record>
+    <!-- Form View -->
+    <record id="view_telegraf_http_response_notification_form" model="ir.ui.view">
+        <field name="name">telegraf.http_response_notification.form</field>
+        <field name="model">telegraf.http_response_notification</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="url"/>
+                        <field name="response_time"/>
+                        <field name="http_response_code"/>
+                        <field name="content_length"/>
+                        <field name="result_type"/>
+                    </group>
+                    <group>
+                        <field name="telegraf_data_id"/>
+                        <field name="notify_telegram"/>
+                        <field name="telegram_http_id"/>
+                        <field name="timestamp"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
 
     <record id="action_telegraf_http_response_notification" model="ir.actions.act_window">
         <field name="name">HTTP Response Information</field>
         <field name="res_model">telegraf.http_response_notification</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
 </odoo>
