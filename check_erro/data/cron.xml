@@ -5,8 +5,8 @@
             <field name="model_id" ref="model_telegraf_data"/>
             <field name="state">code</field>
             <field name="code">model.cron_send_telegram_alerts()</field>
-            <field name="interval_number">8</field>
-            <field name="interval_type">hours</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="active">True</field>
         </record>

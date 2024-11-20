@@ -92,8 +92,7 @@ class TelegrafData(models.Model):
                 f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
                 f"Host: {record.host}\n"
                 f"RAM đã sử dụng: {record.memory_used_percent}%\n"
-                f"Số lượng ổ đĩa vượt ngưỡng: {record.critical_disks}\n"
-                f"Lần cập nhật cuối: {record.last_update}\n"
+                f"Số ổ đĩa trên 80%: {record.critical_disks}\n"
             )
 
             # Gửi thông báo qua Telegram
