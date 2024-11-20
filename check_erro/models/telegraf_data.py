@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from datetime import datetime, timedelta
-
+from odoo.exceptions import UserError
 class TelegrafData(models.Model):
     _name = 'telegraf.data'
     _description = 'Telegraf Data'
@@ -44,6 +44,7 @@ class TelegrafData(models.Model):
 
     # nhan thong bao tele
     notify_telegram = fields.Boolean(string='Thông báo telegram', required=False, default=True)
+    telegram_main_id = fields.Many2one(comodel_name='telegram.bot', string='Cảnh báo chính', required=False, default=lambda self: self._get_default_telegram_bot())
     telegram_device_id = fields.Many2one(comodel_name='telegram.bot',string='Cảnh báo device', required=False, default=lambda self: self._get_default_telegram_bot())
     telegram_http_id = fields.Many2one(comodel_name='telegram.bot', string='Cảnh báo http', required=False, default=lambda self: self._get_default_telegram_bot())
     @api.constrains('host')
@@ -73,4 +74,40 @@ class TelegrafData(models.Model):
 
         # Đặt trạng thái is_active thành False cho các bản ghi không có cập nhật
         inactive_records.write({'is_active': False})
+
+    @api.model
+    def cron_send_telegram_alerts(self):
+        # Lọc các bản ghi thỏa mãn điều kiện
+        records = self.search([
+            ('notify_telegram', '=', True),  # Chỉ các bản ghi có notify_telegram = True
+            ('telegram_main_id', '!=', False),  # Có cấu hình Telegram Bot
+            '|',  # Toán tử OR bắt đầu
+            ('memory_used_percent', '>', 80),  # RAM sử dụng > 80%
+            ('critical_disks', '>', 0)  # Có ổ đĩa trên 80%
+        ])
+
+        for record in records:
+            # Tạo thông báo cảnh báo
+            message = (
+                f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
+                f"Host: {record.host}\n"
+                f"RAM đã sử dụng: {record.memory_used_percent}%\n"
+                f"Số lượng ổ đĩa vượt ngưỡng: {record.critical_disks}\n"
+                f"Lần cập nhật cuối: {record.last_update}\n"
+            )
+
+            # Gửi thông báo qua Telegram
+            try:
+                record.telegram_main_id.send_message(message)
+            except UserError as e:
+                # Ghi log nếu không gửi được
+                self.env['ir.logging'].create({
+                    'name': 'Telegram Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send alert for host {record.host}: {str(e)}",
+                    'path': 'telegraf.data',
+                    'line': '0',
+                    'func': 'cron_send_telegram_alerts',
+                })
 

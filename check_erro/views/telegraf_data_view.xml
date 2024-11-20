@@ -109,7 +109,8 @@
                     <group string="Cài đặt thông báo telegram ">
                         <group>
                             <field name="notify_telegram"/>
-                            <field name="telegram_device_id" invisible="not notify_telegram"/>
+                            <field name="telegram_main_id" invisible="not notify_telegram" />
+<!--                            <field name="telegram_device_id" invisible="not notify_telegram"/>-->
                             <field name="telegram_http_id" invisible="not notify_telegram" />
                         </group>
                     </group>

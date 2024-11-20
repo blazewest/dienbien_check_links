@@ -7,11 +7,11 @@
     'depends': ['base','os_telegram','mail'],
     'data': [
         'security/ir.model.access.csv',
+        'data/cron.xml',
         'views/views_ip_wan.xml',
         'views/views_qr_code.xml',
         # 'data/email_template.xml',
         # 'data/server_action.xml',
-
         'views/disk_info.xml',
         'views/http_response.xml',
         'views/loginattempt.xml',
