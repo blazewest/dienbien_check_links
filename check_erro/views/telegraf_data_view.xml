@@ -1,4 +1,5 @@
 <odoo>
+
     <record id="view_telegraf_data_kanban" model="ir.ui.view">
         <field name="name">telegraf.data.kanban</field>
         <field name="model">telegraf.data</field>
@@ -51,7 +52,6 @@
         </field>
     </record>
 
-
     <record id="view_telegraf_data_tree" model="ir.ui.view">
         <field name="name">telegraf.data.tree</field>
         <field name="model">telegraf.data</field>
@@ -62,8 +62,8 @@
                 <field name="tcp_established"/>
                 <field name="n_cpus"/>
                 <field name="critical_disks"/>
-                <field name="last_update"/>
                 <field name="web_error_count"/>
+                <field name="last_update"/>
             </tree>
         </field>
     </record>
@@ -104,6 +104,13 @@
                         <group>
                             <field name="web_count"/>
                             <field name="web_error_count"/>
+                        </group>
+                    </group>
+                    <group string="Cài đặt thông báo telegram ">
+                        <group>
+                            <field name="notify_telegram"/>
+                            <field name="telegram_device_id" invisible="not notify_telegram"/>
+                            <field name="telegram_http_id" invisible="not notify_telegram" />
                         </group>
                     </group>
                     <notebook>

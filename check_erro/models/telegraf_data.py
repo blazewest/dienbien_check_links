@@ -10,10 +10,10 @@ class TelegrafData(models.Model):
 
     # Thông tin chính
     host = fields.Char(string='Host')
-    memory_total = fields.Float(string='Tổng bộ nhớ (GB)')
-    memory_used = fields.Float(string='Bộ nhớ đã sử dụng (GB)')
-    memory_available = fields.Float(string='Bộ nhớ khả dụng (GB)')
-    memory_used_percent = fields.Float(string='Bộ nhớ đã sử dụng (%)')
+    memory_total = fields.Float(string='Tổng Ram (GB)')
+    memory_used = fields.Float(string='Ram đã sử dụng (GB)')
+    memory_available = fields.Float(string='Ram khả dụng (GB)')
+    memory_used_percent = fields.Float(string='Ram đã sử dụng (%)')
 
     # Thông tin CPU
     cpu_load1 = fields.Float(string='CPU Load 1 Minute')
@@ -31,9 +31,9 @@ class TelegrafData(models.Model):
     is_active = fields.Boolean(string='Đang hoạt động', default=True)
 
     # Kết nối mạng
-    tcp_established = fields.Integer(string='TCP ở trạng thái ESTABLISHED')
-    tcp_listen = fields.Integer(string='TCP ở trạng thái LISTEN')
-    tcp_time_wait = fields.Integer(string='TCP ở trạng thái TIME_WAIT')
+    tcp_established = fields.Integer(string='TCP ESTABLISHED')
+    tcp_listen = fields.Integer(string='TCP LISTEN')
+    tcp_time_wait = fields.Integer(string='TCP TIME_WAIT')
     udp_socket = fields.Integer(string='socket UDP đang mở')
 
     # One2many fields for related information
@@ -42,6 +42,10 @@ class TelegrafData(models.Model):
     http_response_ids = fields.One2many('telegraf.http_response', 'telegraf_data_id', string='Phản hồi HTTP')
     login_attempt_ids = fields.One2many('login.attempt', 'telegraf_data_id', string="Thông Tin Đăng Nhập")
 
+    # nhan thong bao tele
+    notify_telegram = fields.Boolean(string='Thông báo telegram', required=False, default=True)
+    telegram_device_id = fields.Many2one(comodel_name='telegram.bot',string='Telegram', required=False, default=lambda self: self._get_default_telegram_bot())
+    telegram_http_id = fields.Many2one(comodel_name='telegram.bot', string='Telegram', required=False, default=lambda self: self._get_default_telegram_bot())
     @api.constrains('host')
     def _check_host_unique(self):
         for record in self:
@@ -54,6 +58,12 @@ class TelegrafData(models.Model):
             'last_update': fields.Datetime.now(),
             'is_active': True  # Đặt lại thành hoạt động khi có cập nhật mới
         })
+
+    @api.model
+    def _get_default_telegram_bot(self):
+        # Lấy bản ghi đầu tiên trong telegram.bot hoặc None
+        default_bot = self.env['telegram.bot'].search([], limit=1)
+        return default_bot.id if default_bot else None
 
     @api.model
     def check_inactive_records(self):
