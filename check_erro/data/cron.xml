@@ -31,6 +31,8 @@
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="active">True</field>
+            <field name="do_not_run">False</field> <!-- Đảm bảo chỉ chạy một lần tại một thời điểm -->
         </record>
+
     </data>
 </odoo>
