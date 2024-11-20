@@ -35,12 +35,12 @@
                                         <t t-esc="record.critical_disks.value"/>
                                     </span>
                                 </div>
-<!--                                <div>-->
-<!--                                    <span>Số lượng web hỏng: </span>-->
-<!--                                    <span>-->
-<!--                                        <t t-esc="record.web_error_count.value"/>-->
-<!--                                    </span>-->
-<!--                                </div>-->
+                                <div>
+                                    <span>Số lượng web hỏng: </span>
+                                    <span>
+                                        <t t-esc="record.web_error_count.value"/>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </t>
