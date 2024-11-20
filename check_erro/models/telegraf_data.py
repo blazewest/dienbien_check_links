@@ -167,7 +167,6 @@ class TelegrafData(models.Model):
                     'func': 'cron_check_server_signal',
                 })
 
-    @api.multi
     def unlink(self):
         for record in self:
             # Xóa tất cả các bản ghi liên quan trong telegraf.http_response_notification
