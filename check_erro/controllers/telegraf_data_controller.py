@@ -132,17 +132,20 @@ class TelegrafDataController(http.Controller):
                 })
 
     def _store_http_response(self, telegraf_data, metrics):
-        web_count = 0
+        unique_urls = set()  # Tập hợp lưu các URL duy nhất
+        error_urls = set()  # Tập hợp lưu các URL hỏng
         web_error_count = 0
 
         for metric in metrics:
             if metric.get('name') == 'http_response':
                 fields = metric.get('fields', {})
+                tags = metric.get('tags', {})
                 http_response_code = fields.get('http_response_code', 0)
+                url = tags.get('server', 'Unknown')
 
                 # Tạo bản ghi HTTP response
                 request.env['telegraf.http_response'].sudo().create({
-                    'url': metric.get('tags', {}).get('server', 'Unknown'),
+                    'url': url,
                     'response_time': fields.get('response_time', 0),
                     'http_response_code': http_response_code,
                     'content_length': fields.get('content_length', 0),
@@ -151,10 +154,18 @@ class TelegrafDataController(http.Controller):
                     'telegraf_data_id': telegraf_data.id,
                 })
 
-                # Tăng số lượng web và kiểm tra web hỏng
-                web_count += 1
-                if http_response_code not in [200, 302]:  # Nếu mã HTTP không phải 200 hoặc 302
-                    web_error_count += 1
+                # Thêm URL vào tập hợp unique_urls
+                if url not in unique_urls:
+                    unique_urls.add(url)
+
+                    # Chỉ tăng `web_error_count` nếu mã HTTP không phải 200 hoặc 302 và chưa tồn tại trong error_urls
+                    if http_response_code not in [200, 302]:
+                        error_urls.add(url)  # Thêm URL hỏng vào tập hợp error_urls
+
+        # Số lượng web là kích thước của tập hợp unique_urls
+        web_count = len(unique_urls)
+        # Số lượng web hỏng là kích thước của tập hợp error_urls
+        web_error_count = len(error_urls)
 
         # Cập nhật các trường mới vào `telegraf_data`
         telegraf_data.sudo().write({
