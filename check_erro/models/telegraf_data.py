@@ -148,7 +148,7 @@ class TelegrafData(models.Model):
             message = (
                 f"<b>CẢNH BÁO HỆ THỐNG</b>\n"
                 f"Host: {record.host}\n"
-                f"Trạng thái: Không nhận tín hiệu từ server.\n"
+                f"Trạng thái: Không nhận được tín hiệu từ server.\n"
                 f"Lần cập nhật cuối: {record.last_update}\n"
             )
 

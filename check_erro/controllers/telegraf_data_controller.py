@@ -134,43 +134,74 @@ class TelegrafDataController(http.Controller):
     def _store_http_response(self, telegraf_data, metrics):
         unique_urls = set()  # Tập hợp lưu các URL duy nhất
         error_urls = set()  # Tập hợp lưu các URL hỏng
-        web_error_count = 0
 
         for metric in metrics:
             if metric.get('name') == 'http_response':
-                fields = metric.get('fields', {})
-                tags = metric.get('tags', {})
-                http_response_code = fields.get('http_response_code', 0)
-                url = tags.get('server', 'Unknown')
+                fields, tags, url, http_response_code = self._extract_http_response_data(metric)
 
-                # Tạo bản ghi HTTP response
-                request.env['telegraf.http_response'].sudo().create({
-                    'url': url,
-                    'response_time': fields.get('response_time', 0),
-                    'http_response_code': http_response_code,
-                    'content_length': fields.get('content_length', 0),
-                    'result_type': fields.get('result_type', 'Unknown'),
-                    'timestamp': datetime.now(),
-                    'telegraf_data_id': telegraf_data.id,
-                })
+                # Lưu thông tin vào mô hình 'telegraf.http_response'
+                self._create_http_response(telegraf_data, fields, tags, url, http_response_code)
 
-                # Thêm URL vào tập hợp unique_urls
+                # Cập nhật hoặc tạo mới thông tin vào mô hình 'telegraf.http_response_notification'
+                self._update_or_create_notification(telegraf_data, fields, url, http_response_code)
+
+                # Quản lý unique_urls và error_urls
                 if url not in unique_urls:
                     unique_urls.add(url)
-
-                    # Chỉ tăng `web_error_count` nếu mã HTTP không phải 200 hoặc 302 và chưa tồn tại trong error_urls
                     if http_response_code not in [200, 302]:
-                        error_urls.add(url)  # Thêm URL hỏng vào tập hợp error_urls
+                        error_urls.add(url)
 
-        # Số lượng web là kích thước của tập hợp unique_urls
-        web_count = len(unique_urls)
-        # Số lượng web hỏng là kích thước của tập hợp error_urls
-        web_error_count = len(error_urls)
+        # Cập nhật số lượng web và web lỗi
+        self._update_telegraf_data(telegraf_data, unique_urls, error_urls)
 
-        # Cập nhật các trường mới vào `telegraf_data`
+    def _extract_http_response_data(self, metric):
+        fields = metric.get('fields', {})
+        tags = metric.get('tags', {})
+        url = tags.get('server', 'Unknown')
+        http_response_code = fields.get('http_response_code', 0)
+        return fields, tags, url, http_response_code
+
+    def _create_http_response(self, telegraf_data, fields, tags, url, http_response_code):
+        self.env['telegraf.http_response'].sudo().create({
+            'url': url,
+            'response_time': fields.get('response_time', 0),
+            'http_response_code': http_response_code,
+            'content_length': fields.get('content_length', 0),
+            'result_type': fields.get('result_type', 'Unknown'),
+            'timestamp': fields.Datetime.now(),
+            'telegraf_data_id': telegraf_data.id,
+        })
+
+    def _update_or_create_notification(self, telegraf_data, fields, url, http_response_code):
+        notification_model = self.env['telegraf.http_response_notification'].sudo()
+        existing_notification = notification_model.search([
+            ('url', '=', url),
+            ('telegraf_data_id', '=', telegraf_data.id)
+        ], limit=1)
+
+        if existing_notification:
+            existing_notification.write({
+                'response_time': fields.get('response_time', 0),
+                'http_response_code': http_response_code,
+                'content_length': fields.get('content_length', 0),
+                'result_type': fields.get('result_type', 'Unknown'),
+                'timestamp': fields.Datetime.now(),
+            })
+        else:
+            notification_model.create({
+                'url': url,
+                'response_time': fields.get('response_time', 0),
+                'http_response_code': http_response_code,
+                'content_length': fields.get('content_length', 0),
+                'result_type': fields.get('result_type', 'Unknown'),
+                'timestamp': fields.Datetime.now(),
+                'telegraf_data_id': telegraf_data.id,
+            })
+
+    def _update_telegraf_data(self, telegraf_data, unique_urls, error_urls):
         telegraf_data.sudo().write({
-            'web_count': web_count,
-            'web_error_count': web_error_count,
+            'web_count': len(unique_urls),  # Số lượng web là kích thước của tập hợp unique_urls
+            'web_error_count': len(error_urls),  # Số lượng web hỏng là kích thước của tập hợp error_urls
         })
 
     def _store_login_attempts(self, telegraf_data, metrics):

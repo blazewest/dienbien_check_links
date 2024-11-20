@@ -186,9 +186,6 @@
     <menuitem id="menu_telegraf_http_response_root" name="Phản Hồi HTTP" parent="menu_telegraf_data_root" action="action_telegraf_http_response" sequence="5"/>
     <menuitem id="menu_login_attempt_root" name="Thông Tin Đăng Nhập" parent="menu_telegraf_data_root" action="action_login_attempt" sequence="3"/>
     <menuitem id="menu_port_response_root" name="Phản hồi của cổng cụ thể" parent="menu_telegraf_data_root" action="action_port_response" sequence="4"/>
-
-
-
-
+    <menuitem id="menu_telegraf_http_response_notification_root" name="Tình trang web" parent="menu_telegraf_data_root" action="action_telegraf_http_response_notification" sequence="6"/>
 
 </odoo>
