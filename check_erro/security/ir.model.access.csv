@@ -8,3 +8,4 @@ access_telegraf_disk,telegraf.disk,model_telegraf_disk,base.group_user,1,1,1,1
 access_telegraf_http_response,telegraf.http_response,model_telegraf_http_response,base.group_user,1,1,1,1
 access_login_attempt,login.attempt,model_login_attempt,base.group_user,1,1,1,1
 access_telegraf_port_response,telegraf.port_response,model_telegraf_port_response,base.group_user,1,1,1,1
+access_telegraf_http_response_notification,telegraf.http_response_notification,model_telegraf_http_response_notification,base.group_user,1,1,1,1
