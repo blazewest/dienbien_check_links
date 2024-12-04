@@ -100,13 +100,6 @@ class TelegrafDataController(http.Controller):
                     'cpu_used_percent': cpu_used_percent,
                 })
 
-            elif name == 'wan_ip' and 'ip' in fields:
-                # Cập nhật IP WAN từ trường "ip"
-                wan_ip = fields.get('ip', '')
-                main_info.update({
-                    'ip_wan': wan_ip
-                })
-
         return main_info
 
     def _store_disk_info(self, telegraf_data, metrics):

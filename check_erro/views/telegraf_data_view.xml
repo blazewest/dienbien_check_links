@@ -12,7 +12,6 @@
                 <field name="last_update"/>
                 <field name="critical_disks"/> <!-- Thêm trường mới -->
                 <field name="web_error_count"/>
-                <field name="ip_wan"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div t-att-style="record.memory_used_percent.raw_value > 80 ? 'background-color:red;' : 'background-color:blue;'"
@@ -68,7 +67,6 @@
                 <field name="memory_used_percent"/>
                 <field name="cpu_used_percent"/>
                 <field name="tcp_established"/>
-                <field name="ip_wan"/>
                 <field name="n_cpus"/>
                 <field name="critical_disks"/>
                 <field name="web_error_count"/>
@@ -107,7 +105,6 @@
                             <field name="tcp_listen"/>
                             <field name="tcp_time_wait"/>
                             <field name="udp_socket"/>
-                            <field name="ip_wan"/>
                         </group>
                         <group>
                             <field name="web_count"/>
