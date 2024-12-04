@@ -84,6 +84,12 @@ class TelegrafDataController(http.Controller):
                     'cpu_load15': round(cpu_load15, 6),
                     'n_cpus': n_cpus,
                 })
+            elif name == 'wan_ip' and 'ip' in fields:
+                # Cập nhật IP WAN từ trường "ip"
+                wan_ip = fields.get('ip', '')
+                main_info.update({
+                    'ip_wan': wan_ip
+                })
 
         return main_info
 
