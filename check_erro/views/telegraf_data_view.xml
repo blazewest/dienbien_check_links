@@ -93,8 +93,6 @@
                             <field name="memory_used_percent"/>
                         </group>
                         <group>
-                            <field name="cpu_load1"/>
-                            <field name="cpu_load5"/>
                             <field name="cpu_used_percent"/>
                             <field name="n_cpus"/>
                             <field name="disk_count"/>

@@ -53,6 +53,7 @@ class TelegrafDataController(http.Controller):
 
     def _parse_main_info(self, metrics):
         main_info = {'host': self._get_host_name(metrics)}
+
         for metric in metrics:
             name = metric.get('name')
             fields = metric.get('fields', {})
@@ -74,7 +75,6 @@ class TelegrafDataController(http.Controller):
                 })
 
             elif name == 'system' and 'load1' in fields and 'load5' in fields and 'load15' in fields:
-                # Chỉ cập nhật nếu các giá trị CPU thực sự tồn tại trong fields
                 cpu_load1 = fields.get('load1', 0)
                 cpu_load5 = fields.get('load5', 0)
                 cpu_load15 = fields.get('load15', 0)
@@ -86,6 +86,20 @@ class TelegrafDataController(http.Controller):
                     'cpu_load15': round(cpu_load15, 6),
                     'n_cpus': n_cpus,
                 })
+
+            # Cập nhật tỷ lệ sử dụng CPU
+            elif name == 'cpu':
+                usage_user = fields.get('usage_user', 0)
+                usage_system = fields.get('usage_system', 0)
+                usage_idle = fields.get('usage_idle', 0)
+
+                # Tính toán tổng sử dụng CPU (user + system)
+                cpu_used_percent = round(usage_user + usage_system, 2)
+
+                main_info.update({
+                    'cpu_used_percent': cpu_used_percent,
+                })
+
             elif name == 'wan_ip' and 'ip' in fields:
                 # Cập nhật IP WAN từ trường "ip"
                 wan_ip = fields.get('ip', '')
