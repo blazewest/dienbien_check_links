@@ -4,7 +4,7 @@
     'summary': 'Module to check website status',
     'category': 'Tools',
     'author': 'Duy Hung',
-    'depends': ['base','os_telegram','mail'],
+    'depends': ['base','os_telegram','mail','contacts_zalo','odoo_integrate_zalo'],
     'data': [
         'security/ir.model.access.csv',
         'data/cron.xml',
@@ -17,15 +17,19 @@
         'views/loginattempt.xml',
         'views/port_response.xml',
         'views/telegraf_data_view.xml',
+        'views/disk_chart_view.xml',
     ],
     'images': ['check_erro/static/src/img/logo.png'],
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
     'assets': {
-            'web.assets_backend': [
-                'check_erro/static/src/img/logo.png',
-                'check_erro/static/src/css/kanban_style.css',
-            ],
-        },
+        'web.assets_backend': [
+            'check_erro/static/src/css/kanban_style.css',
+            '/web/static/lib/Chart/Chart.js',
+            ('include', 'web.chartjs_lib'),
+            'check_erro/static/src/js/disk_chart_widget.js',
+            'check_erro/static/src/xml/disk_chart_template.xml',
+        ],
+    },
 }

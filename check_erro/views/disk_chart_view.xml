@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_disk_usage_chart" model="ir.ui.view">
+        <field name="name">disk.usage.chart</field>
+        <field name="model">telegraf.disk</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="device"/>
+                        <field name="days" widget="integer"/>
+                    </group>
+                    <div>
+                        <field name="disk_chart" widget="chart"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_disk_usage_chart" model="ir.actions.act_window">
+        <field name="name">Biểu Đồ Sử Dụng Ổ Đĩa</field>
+        <field name="res_model">telegraf.disk</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_disk_usage_chart"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Thêm menuitem -->
+    <menuitem 
+        id="menu_disk_usage_chart"
+        name="Biểu Đồ Ổ Đĩa"
+        action="action_disk_usage_chart"
+        parent="menu_telegraf_data_root"
+        sequence="30"/>
+</odoo> 

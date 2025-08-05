@@ -29,38 +29,34 @@
         </field>
     </record>
 
-    <record id="view_telegraf_disk_graph" model="ir.ui.view">
-        <field name="name">telegraf.disk.graph</field>
+    <record id="view_telegraf_disk_graph_time" model="ir.ui.view">
+        <field name="name">telegraf.disk.graph.time</field>
         <field name="model">telegraf.disk</field>
         <field name="arch" type="xml">
-            <graph string="Disk Usage">
-                <field name="timestamp" type="row" interval="day"/>
-                <field name="used_percent" type="measure"/>
+            <graph string="Disk Usage Over Time">
+                <field name="timestamp" type="row" interval="day"/> <!-- nhóm theo ngày -->
+                <field name="total" type="measure" string="Total Space (GB)"/>
+                <field name="used" type="measure" string="Used Space (GB)"/>
+                <field name="free" type="measure" string="Free Space (GB)"/>
+                <field name="used_percent" type="measure" string="Used Percentage (%)"/>
             </graph>
         </field>
     </record>
 
-    <record id="view_telegraf_disk_graph_usage" model="ir.ui.view">
-        <field name="name">telegraf.disk.graph.usage</field>
+    <record id="view_telegraf_disk_bar_graph_time" model="ir.ui.view">
+        <field name="name">telegraf.disk.bar.graph.time</field>
         <field name="model">telegraf.disk</field>
         <field name="arch" type="xml">
-            <graph string="Disk Usage by Device">
-                <field name="device" type="row"/>
-                <field name="used" type="measure"/>
+            <graph string="Disk Usage Over Time" type="bar">
+                <field name="timestamp" type="row" interval="day"/> <!-- nhóm theo ngày -->
+                <field name="total" type="measure" string="Total Space (GB)"/>
+                <field name="used" type="measure" string="Used Space (GB)"/>
+                <field name="free" type="measure" string="Free Space (GB)"/>
+                <field name="used_percent" type="measure" string="Used Percentage (%)"/>
             </graph>
         </field>
     </record>
 
-    <record id="view_telegraf_disk_graph_pie" model="ir.ui.view">
-        <field name="name">telegraf.disk.graph.pie</field>
-        <field name="model">telegraf.disk</field>
-        <field name="arch" type="xml">
-            <graph string="Critical Disk Usage" type="pie">
-                <field name="device" type="row"/>
-                <field name="used_percent" type="measure"/>
-            </graph>
-        </field>
-    </record>
 
 
     <record id="action_telegraf_disk" model="ir.actions.act_window">

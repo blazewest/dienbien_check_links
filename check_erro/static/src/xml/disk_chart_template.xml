@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="check_erro.DiskChartTemplate">
+        <div class="o_disk_chart_container h-100">
+            <canvas t-ref="chart" style="width: 100%; height: 400px;"/>
+        </div>
+    </t>
+</templates> 

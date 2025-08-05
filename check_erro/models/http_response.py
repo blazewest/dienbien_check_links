@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.exceptions import UserError
-
+import requests
 
 class HttpResponse(models.Model):
     _name = 'telegraf.http_response'
@@ -35,7 +35,7 @@ class HttpResponseNotification(models.Model):
         required=True, ondelete='cascade')
 
     # Notification fields
-    notify_telegram = fields.Boolean(string='Thông báo telegram', required=False, default=True)
+    notify_telegram = fields.Boolean(string='Thông báo telegram', required=False, default=False)
     telegram_http_id = fields.Many2one(
         comodel_name='telegram.bot',
         string='Cảnh báo http',
@@ -46,6 +46,10 @@ class HttpResponseNotification(models.Model):
     is_notified = fields.Boolean(string='Đã thông báo lỗi', default=False)
     is_recovered = fields.Boolean(string='Đã thông báo phục hồi', default=False)
     last_notification_time = fields.Datetime(string='Thời gian thông báo gần nhất')
+    notify_zalo = fields.Boolean(string='Thông báo zalo', required=False, default=False)
+    partner_id = fields.Many2one(comodel_name='res.partner', string='Người phụ trách', required=False)
+    zalo_oa_id = fields.Many2one(comodel_name='zalo.application', string='Kênh OA', required=False)
+
 
     # Unique constraint on 'url' and 'telegraf_data_id'
     @api.constrains('url', 'telegraf_data_id')
@@ -136,6 +140,121 @@ class HttpResponseNotification(models.Model):
                     'line': '0',
                     'func': 'cron_notify_http_errors',
                 })
+
+    @api.model
+    def cron_notify_http_errors_zalo(self):
+        # --- 1. GỬI THÔNG BÁO LỖI ---
+        error_records = self.search([
+            ('notify_zalo', '=', True),
+            ('partner_id.id_zalo', '!=', False),
+            ('zalo_oa_id.access_token', '!=', False),
+            ('http_response_code', 'not in', [200, 302]),
+        ])
+
+        for record in error_records:
+            try:
+                self.env.cr.execute(
+                    "SELECT id FROM telegraf_http_response_notification WHERE id = %s FOR UPDATE NOWAIT",
+                    (record.id,))
+
+                message = (
+                    f"{record.url}\n"
+                    f"🛑 Mã phản hồi: {record.http_response_code}"
+                )
+
+                self._send_zalo_message(
+                    access_token=record.zalo_oa_id.access_token,
+                    user_id=record.partner_id.id_zalo,
+                    message=message
+                )
+
+                record.write({
+                    'is_notified': True,
+                    'is_recovered': False,
+                    'last_notification_time': fields.Datetime.now()
+                })
+            except Exception as e:
+                self.env['ir.logging'].create({
+                    'name': 'Zalo HTTP Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send Zalo alert for URL {record.url}: {str(e)}",
+                    'path': 'telegraf.http_response_notification',
+                    'line': '0',
+                    'func': 'cron_notify_http_errors_zalo',
+                })
+
+        # --- 2. GỬI THÔNG BÁO PHỤC HỒI ---
+        recovered_records = self.search([
+            ('notify_zalo', '=', True),
+            ('partner_id.id_zalo', '!=', False),
+            ('zalo_oa_id.access_token', '!=', False),
+            ('http_response_code', 'in', [200, 302]),
+            ('is_recovered', '=', False),
+            ('is_notified', '=', True)
+        ])
+
+        for record in recovered_records:
+            try:
+                self.env.cr.execute(
+                    "SELECT id FROM telegraf_http_response_notification WHERE id = %s FOR UPDATE NOWAIT",
+                    (record.id,))
+
+                message = (
+                    f"{record.url}\n"
+                    f"🟢 Trạng thái: Đã hoạt động"
+                )
+
+                self._send_zalo_message(
+                    access_token=record.zalo_oa_id.access_token,
+                    user_id=record.partner_id.id_zalo,
+                    message=message
+                )
+
+                record.write({
+                    'is_recovered': True,
+                    'last_notification_time': fields.Datetime.now()
+                })
+            except Exception as e:
+                self.env['ir.logging'].create({
+                    'name': 'Zalo HTTP Recovery Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send Zalo recovery alert for URL {record.url}: {str(e)}",
+                    'path': 'telegraf.http_response_notification',
+                    'line': '0',
+                    'func': 'cron_notify_http_errors_zalo',
+                })
+
+    def _send_zalo_message(self, access_token, user_id, message):
+        """Gửi tin nhắn CS Zalo"""
+        try:
+            headers = {
+                'Content-Type': 'application/json',
+                'access_token': access_token,
+            }
+            payload = {
+                "recipient": {
+                    "user_id": user_id
+                },
+                "message": {
+                    "text": message
+                }
+            }
+
+            response = requests.post(
+                "https://openapi.zalo.me/v3.0/oa/message/cs",
+                headers=headers,
+                json=payload,
+                timeout=10
+            )
+            response.raise_for_status()
+
+            resp_data = response.json()
+            if resp_data.get('error', 0) != 0:
+                raise Exception(f"Zalo API error: {resp_data}")
+        except Exception as e:
+            raise Exception(f"Zalo send error: {str(e)}")
 
 
 
