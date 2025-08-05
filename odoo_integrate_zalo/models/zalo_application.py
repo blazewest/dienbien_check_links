@@ -86,3 +86,116 @@ class ZaloApplication(models.Model):
     def _run_get_access_token(self):
         # Call your method here
         self.get_access_token_to_refresh_token()
+
+    @api.model
+    def cron_notify_http_errors_zalo(self):
+        # Các bản ghi lỗi cần gửi qua Zalo
+        error_records = self.search([
+            ('notify_zalo', '=', True),
+            ('partner_id.id_zalo', '!=', False),
+            ('zalo_oa_id.access_token', '!=', False),
+            ('http_response_code', 'not in', [200, 302]),
+        ])
+
+        for record in error_records:
+            try:
+                self.env.cr.execute(
+                    "SELECT id FROM telegraf_http_response_notification WHERE id = %s FOR UPDATE NOWAIT", (record.id,))
+
+                message_text = (
+                    f"{record.url}\n"
+                    f"🛑 Mã phản hồi: {record.http_response_code}"
+                )
+
+                self._send_zalo_message(
+                    access_token=record.zalo_oa_id.access_token,
+                    user_id=record.partner_id.id_zalo,
+                    message=message_text
+                )
+
+                record.write({
+                    'is_notified': True,
+                    'is_recovered': False,
+                    'last_notification_time': fields.Datetime.now()
+                })
+            except Exception as e:
+                self.env['ir.logging'].create({
+                    'name': 'Zalo HTTP Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send Zalo HTTP alert for URL {record.url}: {str(e)}",
+                    'path': 'telegraf.http_response_notification',
+                    'line': '0',
+                    'func': 'cron_notify_http_errors_zalo',
+                })
+
+        # Các bản ghi đã phục hồi cần gửi thông báo
+        recovered_records = self.search([
+            ('notify_zalo', '=', True),
+            ('partner_id.id_zalo', '!=', False),
+            ('zalo_oa_id.access_token', '!=', False),
+            ('http_response_code', 'in', [200, 302]),
+            ('is_recovered', '=', False),
+            ('is_notified', '=', True),
+        ])
+
+        for record in recovered_records:
+            try:
+                self.env.cr.execute(
+                    "SELECT id FROM telegraf_http_response_notification WHERE id = %s FOR UPDATE NOWAIT", (record.id,))
+
+                message_text = (
+                    f"{record.url}\n"
+                    "🟢 Trạng thái: Đã hoạt động"
+                )
+
+                self._send_zalo_message(
+                    access_token=record.zalo_oa_id.access_token,
+                    user_id=record.partner_id.id_zalo,
+                    message=message_text
+                )
+
+                record.write({
+                    'is_recovered': True,
+                    'last_notification_time': fields.Datetime.now()
+                })
+            except Exception as e:
+                self.env['ir.logging'].create({
+                    'name': 'Zalo HTTP Recovery Alert Error',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Failed to send Zalo recovery alert for URL {record.url}: {str(e)}",
+                    'path': 'telegraf.http_response_notification',
+                    'line': '0',
+                    'func': 'cron_notify_http_errors_zalo',
+                })
+
+    def _send_zalo_message(self, access_token, user_id, message):
+        """Hàm gửi tin nhắn Zalo CS"""
+        try:
+            headers = {
+                'Content-Type': 'application/json',
+                'access_token': access_token,
+            }
+            payload = {
+                "recipient": {
+                    "user_id": user_id
+                },
+                "message": {
+                    "text": message
+                }
+            }
+
+            response = requests.post(
+                "https://openapi.zalo.me/v3.0/oa/message/cs",
+                headers=headers,
+                json=payload,
+                timeout=10
+            )
+            response.raise_for_status()
+
+            # Optional: Ghi log nếu cần
+            if response.json().get('error', 0) != 0:
+                raise Exception(f"Zalo API error: {response.json()}")
+        except Exception as e:
+            raise Exception(f"Zalo send error: {str(e)}")

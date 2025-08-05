@@ -57,6 +57,11 @@
                         <field name="telegram_http_id"/>
                         <field name="timestamp"/>
                     </group>
+                    <group>
+                        <field name="notify_zalo"/>
+                        <field name="zalo_oa_id"/>
+                        <field name="partner_id"/>
+                    </group>
                 </sheet>
             </form>
         </field>

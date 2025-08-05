@@ -111,12 +111,17 @@
                             <field name="web_error_count"/>
                         </group>
                     </group>
-                    <group string="Cài đặt thông báo telegram ">
+                    <group string="Cài đặt thông báo telegram, zalo ">
                         <group>
                             <field name="notify_telegram"/>
                             <field name="telegram_main_id" invisible="not notify_telegram" />
 <!--                            <field name="telegram_device_id" invisible="not notify_telegram"/>-->
                             <field name="telegram_http_id" invisible="not notify_telegram" />
+                        </group>
+                        <group>
+                            <field name="notify_zalo"/>
+                            <field name="zalo_oa_id" invisible="not notify_zalo" />
+                            <field name="partner_id" invisible="not notify_zalo" />
                         </group>
                     </group>
                     <notebook>
