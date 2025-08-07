@@ -17,8 +17,8 @@ class TelegrafDataController(http.Controller):
 
         metrics = data.get('metrics', [])
         host_name = self._get_host_name(metrics)
-        if host_name == 'WEBS-XAYDUNG':
-            _logger.info("Received data from Telegraf: %s", json.dumps(data))
+        # if host_name == 'WEBS-XAYDUNG':
+        #     _logger.info("Received data from Telegraf: %s", json.dumps(data))
 
         if not host_name or host_name == 'Unknown':
             _logger.info("No host found in the data. Skipping record creation.")

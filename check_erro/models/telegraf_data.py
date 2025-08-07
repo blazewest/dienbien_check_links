@@ -294,7 +294,7 @@ class TelegrafData(models.Model):
             }
 
             response = requests.post(
-                "https://openapi.zalo.me/v2.0/oa/message/cs",
+                "https://openapi.zalo.me/v2.0/oa/message",
                 headers=headers,
                 json=payload,
                 timeout=10
