@@ -241,7 +241,7 @@ class TelegrafData(models.Model):
                     f"[CẢNH BÁO HỆ THỐNG]\n"
                     f"Host: {record.host}\n"
                     f"RAM đã sử dụng: {record.memory_used_percent:.2f}%\n"
-                    f"Số ổ đĩa trên 80%: {record.critical_disks}"
+                    f"Số ổ đĩa trên 90%: {record.critical_disks}"
                 )
             elif record.memory_used_percent > 80:
                 message = (
@@ -253,7 +253,7 @@ class TelegrafData(models.Model):
                 message = (
                     f"[CẢNH BÁO HỆ THỐNG]\n"
                     f"Host: {record.host}\n"
-                    f"Số ổ đĩa trên 80%: {record.critical_disks}"
+                    f"Số ổ đĩa trên 90%: {record.critical_disks}"
                 )
             else:
                 continue  # Không có cảnh báo

@@ -124,7 +124,7 @@ class TelegrafDataController(http.Controller):
 
                 # Cập nhật số lượng đĩa và đĩa "critical"
                 disk_count += 1
-                if used_percent > 80:
+                if used_percent > 90:
                     critical_disks += 1
 
         # Cập nhật các trường mới trong telegraf_data
