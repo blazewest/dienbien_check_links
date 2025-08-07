@@ -175,6 +175,33 @@ class TelegrafData(models.Model):
                     'func': 'cron_check_server_signal',
                 })
 
+    def write(self, vals):
+        res = super(TelegrafData, self).write(vals)
+
+        # Các trường cần đồng bộ
+        sync_fields = ['notify_zalo', 'partner_id', 'zalo_oa_id']
+
+        # Kiểm tra nếu một trong các trường thay đổi
+        if any(field in vals for field in sync_fields):
+            for record in self:
+                # Tìm các bản ghi liên quan trong http_response_notification
+                notifications = self.env['telegraf.http_response_notification'].search([
+                    ('telegraf_data_id', '=', record.id)
+                ])
+
+                # Cập nhật từng bản ghi liên quan
+                for notify in notifications:
+                    update_vals = {}
+                    if 'notify_zalo' in vals:
+                        update_vals['notify_zalo'] = vals['notify_zalo']
+                    if 'partner_id' in vals:
+                        update_vals['partner_id'] = vals['partner_id']
+                    if 'zalo_oa_id' in vals:
+                        update_vals['zalo_oa_id'] = vals['zalo_oa_id']
+                    notify.write(update_vals)
+
+        return res
+
     def unlink(self):
         for record in self:
             # Xóa tất cả các bản ghi liên quan trong telegraf.http_response_notification
