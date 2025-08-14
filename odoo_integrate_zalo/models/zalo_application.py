@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+import logging
 import requests
 import json
 from urllib.parse import urlencode
 from odoo.exceptions import ValidationError
+_logger = logging.getLogger(__name__)
 
 class ZaloApplication(models.Model):
     _name = 'zalo.application'
@@ -36,56 +38,85 @@ class ZaloApplication(models.Model):
                         raise ValidationError(f"Mô hình {selected_model} đã tồn tại trong một bản ghi khác.")
 
     def get_access_token_to_refresh_token(self):
+        """
+        Làm mới access_token bằng refresh_token cho một hoặc nhiều bản ghi.
+        """
+        # Kiểm tra từng bản ghi trong recordset
+        for record in self:
+            try:
+                # Kiểm tra các trường bắt buộc
+                required_fields = [
+                    ('secret_key', 'Secret key'),
+                    ('refresh_token', 'Refresh token'),
+                    ('id_app', 'ID app'),
+                ]
+                missing_field = False
+                for field, field_name in required_fields:
+                    if not getattr(record, field):
+                        _logger.warning(f"[Zalo] Thiếu {field_name} cho bản ghi {record.id} - {record.name}")
+                        missing_field = True
+                        break  # Dừng kiểm tra nếu thiếu trường
 
-        url = "https://oauth.zaloapp.com/v4/oa/access_token"
-        required_fields = [
-            ('secret_key', 'Secret key'),
-            ('refresh_token', 'Refresh token'),
-            ('id_app', 'ID app'),
-        ]
-        for field, field_name in required_fields:
-            if not getattr(self, field):
-                raise models.ValidationError(f"Không có {field_name}")
+                if missing_field:
+                    continue  # Bỏ qua bản ghi này, xử lý bản ghi tiếp theo
 
-        secret_key = self.secret_key
-        headers = {
-            "secret_key": secret_key,
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+                # Chuẩn bị dữ liệu
+                url = "https://oauth.zaloapp.com/v4/oa/access_token"  # ✅ Đã xóa khoảng trắng
+                headers = {
+                    "secret_key": record.secret_key,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'User-Agent': 'Odoo Zalo Integration'
+                }
+                data = {
+                    "refresh_token": record.refresh_token,
+                    "app_id": record.id_app,
+                    "grant_type": "refresh_token"
+                }
+                encoded_data = urlencode(data)
 
-        refresh_token = self.refresh_token
-        app_id = self.id_app
-        data = {
-            "refresh_token": refresh_token,
-            "app_id": app_id,
-            "grant_type": "refresh_token"
-        }
-        encoded_data = urlencode(data)
-        # Gửi yêu cầu POST
-        # if
-        response = requests.post(url, headers=headers, data=encoded_data)
-        # Xử lý kết quả
-        if response.status_code == 200:
-            # print("Yêu cầu POST thành công")
-            response_data = response.json()
-            # print("Dữ liệu trả về từ Zalo API:", response_data)
-            if 'access_token' in response_data:
-                self.access_token = response_data['access_token']
-                self.refresh_token = response_data['refresh_token']
-            else:
-                raise models.ValidationError(response_data['error_description'])
-        else:
-            print("Yêu cầu POST không thành công. Mã lỗi:", response.status_code)
-            print("Nội dung lỗi:", response.text)
+                # Gửi request
+                response = requests.post(url, headers=headers, data=encoded_data, timeout=10)
 
+                if response.status_code == 200:
+                    response_data = response.json()
+                    if 'access_token' in response_data:
+                        record.write({
+                            'access_token': response_data['access_token'],
+                            'refresh_token': response_data.get('refresh_token', record.refresh_token),
+                            # Cập nhật nếu có mới
+                        })
+                        _logger.info(f"[Zalo] Đã làm mới token cho {record.name}")
+                    else:
+                        error_desc = response_data.get('error_description', 'Unknown error')
+                        _logger.error(f"[Zalo] Lỗi API khi làm mới token cho {record.name}: {error_desc}")
+                else:
+                    _logger.error(
+                        f"[Zalo] Lỗi HTTP {response.status_code} khi làm mới token cho {record.name}: {response.text}")
 
-    def get_access_token(self, model):
-        pass
+            except Exception as e:
+                _logger.exception(f"[Zalo] Lỗi khi làm mới token cho bản ghi {record.name}: {str(e)}")
+                # Ghi vào ir.logging nếu cần
+                self.env['ir.logging'].create({
+                    'name': 'Zalo Token Refresh Failed',
+                    'type': 'server',
+                    'level': 'error',
+                    'message': f"Record {record.name}: {str(e)}",
+                    'path': 'zalo.application',
+                    'line': '0',
+                    'func': 'get_access_token_to_refresh_token',
+                })
 
     @api.model
     def _run_get_access_token(self):
-        # Call your method here
-        self.get_access_token_to_refresh_token()
+        """
+        Cron job: Làm mới access_token cho tất cả các bản ghi có refresh_token
+        """
+        zalo_apps = self.search([('refresh_token', '!=', False)])
+        if not zalo_apps:
+            _logger.info("[Zalo] Không tìm thấy bản ghi nào có refresh_token.")
+            return
+
+        zalo_apps.get_access_token_to_refresh_token()  # Gọi trên toàn bộ recordset
 
     @api.model
     def cron_notify_http_errors_zalo(self):
