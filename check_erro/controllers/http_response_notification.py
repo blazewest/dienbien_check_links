@@ -54,7 +54,9 @@ class HttpResponseNotificationAPI(http.Controller):
                 content_type='application/json', status=500
             )
 
-    @http.route('/api/disk_info',type='http', auth='public', methods=['GET'], csrf=False, website=False)
+    @http.route('/api/disk_info',
+                type='http', auth='public', methods=['GET'],
+                csrf=False, website=False)
     def get_disk_info(self, **kwargs):
         try:
             # Lấy key từ tham số URL
@@ -81,38 +83,41 @@ class HttpResponseNotificationAPI(http.Controller):
                     content_type='application/json', status=403
                 )
 
-            # --- Lấy bản ghi mới nhất cho từng cặp (device, telegraf_data_id) ---
             Disk = request.env['telegraf.disk'].sudo()
+
             # nhóm theo device + telegraf_data_id
             groups = Disk.read_group(
-                [('device', '!=', False)],
-                fields=['device', 'telegraf_data_id', 'timestamp:max'],
-                groupby=['device', 'telegraf_data_id']
+                [],  # bỏ filter để không loại bản ghi
+                fields=['device', 'telegraf_data_id'],
+                groupby=['device', 'telegraf_data_id'],
+                lazy=False
             )
 
             records = []
             for g in groups:
                 device = g.get('device')
-                telegraf_data_id = g.get('telegraf_data_id')[0] if g.get('telegraf_data_id') else False
-                timestamp = g.get('timestamp_max')
+                telegraf_data = g.get('telegraf_data_id')
+                telegraf_data_id = telegraf_data[0] if telegraf_data else False
 
-                if device and telegraf_data_id and timestamp:
-                    rec = Disk.search([
-                        ('device', '=', device),
-                        ('telegraf_data_id', '=', telegraf_data_id),
-                        ('timestamp', '=', timestamp)
-                    ], limit=1)
+                if not device or not telegraf_data_id:
+                    continue
 
-                    if rec:
-                        records.append({
-                            'telegraf_data_host': rec.telegraf_data_id.host if rec.telegraf_data_id else None,
-                            'device': rec.device,
-                            'total': rec.total,
-                            'used': rec.used,
-                            'free': rec.free,
-                            'used_percent': rec.used_percent,
-                            'timestamp': rec.timestamp.strftime('%Y-%m-%d %H:%M:%S') if rec.timestamp else None,
-                        })
+                # Lấy bản ghi mới nhất cho từng cặp
+                rec = Disk.search([
+                    ('device', '=', device),
+                    ('telegraf_data_id', '=', telegraf_data_id)
+                ], order='timestamp desc', limit=1)
+
+                if rec:
+                    records.append({
+                        'telegraf_data_host': rec.telegraf_data_id.host if rec.telegraf_data_id else None,
+                        'device': rec.device,
+                        'total': rec.total,
+                        'used': rec.used,
+                        'free': rec.free,
+                        'used_percent': rec.used_percent,
+                        'timestamp': rec.timestamp.strftime('%Y-%m-%d %H:%M:%S') if rec.timestamp else None,
+                    })
 
             return Response(
                 json.dumps({'status': 'success', 'count': len(records), 'data': records}, ensure_ascii=False, indent=2),
