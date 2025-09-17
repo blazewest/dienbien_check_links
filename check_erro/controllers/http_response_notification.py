@@ -39,7 +39,7 @@ class HttpResponseNotificationAPI(http.Controller):
                 'url': rec.url,
                 'response_time': rec.response_time,
                 'http_response_code': rec.http_response_code,
-                'telegraf_data_name': rec.telegraf_data_id.name if rec.telegraf_data_id else None,
+                'telegraf_data_name': rec.telegraf_data_id.host if rec.telegraf_data_id else None,
                 'timestamp': rec.timestamp.strftime('%Y-%m-%d %H:%M:%S') if rec.timestamp else None,
             } for rec in records]
 
