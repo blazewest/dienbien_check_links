@@ -99,18 +99,19 @@ class TelegrafDataController(http.Controller):
                 main_info.update({
                     'cpu_used_percent': cpu_used_percent,
                 })
-            # 👇 IP WAN: lấy từ ifconfig.co hoặc ipinfo.io
             elif name == 'ip_wan':
-                main_info.update({
-                    'ip_wan': fields.get('ip', ''),  # JSON trả về có key "ip"
-                })
-            # 👇 IP LAN: lấy từ PowerShell
+                # WAN IP nằm trong tag 'ip'
+                ip_wan = metric.get('tags', {}).get('ip', '')
+                main_info.update({'ip_wan': ip_wan})
+
             elif name == 'ip_lan':
-                lan_ips = fields.get('lan_ips', [])
-                if isinstance(lan_ips, list):
-                    main_info.update({'ip_lan': ', '.join(lan_ips)})
+                # LAN IP cũng nằm trong tag 'ip'
+                ip_lan = metric.get('tags', {}).get('ip', '')
+                if 'ip_lan' in main_info and main_info['ip_lan']:
+                    # nếu đã có thì nối thêm
+                    main_info['ip_lan'] += ', ' + ip_lan
                 else:
-                    main_info.update({'ip_lan': str(lan_ips)})
+                    main_info['ip_lan'] = ip_lan
 
         return main_info
 
