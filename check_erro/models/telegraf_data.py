@@ -38,6 +38,8 @@ class TelegrafData(models.Model):
     tcp_listen = fields.Integer(string='TCP LISTEN')
     tcp_time_wait = fields.Integer(string='TCP TIME_WAIT')
     udp_socket = fields.Integer(string='socket UDP đang mở')
+    ip_lan = fields.Char(string='IP LAN')
+    ip_wan = fields.Char(string='IP WAN')
 
     # One2many fields for related information
     disk_info_ids = fields.One2many('telegraf.disk', 'telegraf_data_id', string='Thông tin đĩa')
