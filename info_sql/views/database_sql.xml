@@ -82,16 +82,7 @@
         </field>
     </record>
 
-    <record id="view_table_column_sql_tree" model="ir.ui.view">
-        <field name="name">table.sql.tree</field>
-        <field name="model">table.column.sql</field>
-        <field name="arch" type="xml">
-            <tree string="Tables">
-                <field name="column_name"/>
-                <field name="data_type"/>
-            </tree>
-        </field>
-</record>
+
     <!-- Sum Record SQL -->
     <record id="view_sum_record_sql_tree" model="ir.ui.view">
         <field name="name">sum.record.sql.tree</field>
