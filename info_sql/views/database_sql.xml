@@ -134,7 +134,7 @@
     <menuitem id="menu_info_sql_root" name="SQL Info" sequence="5" web_icon="info_sql,static/src/img/logo.png"/>
 
     <menuitem id="menu_database_sql" name="Databases" parent="menu_info_sql_root" action="action_database_sql"/>
-    <menuitem id="menu_table_sql" name="Tables" parent="menu_info_sql_root" action="action_table_sql"/>
-    <menuitem id="menu_sum_record_sql" name="Row Counts" parent="menu_info_sql_root" action="action_sum_record_sql"/>
+    <menuitem id="menu_table_sql" name="Thông tin bảng" parent="menu_info_sql_root" action="action_table_sql"/>
+    <menuitem id="menu_sum_record_sql" name="Thông tin số tập dữ liệu" parent="menu_info_sql_root" action="action_sum_record_sql"/>
 
 </odoo>
