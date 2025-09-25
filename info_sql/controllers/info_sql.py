@@ -1,13 +1,13 @@
 from odoo import http
 from odoo.http import request
 import json
+from datetime import date
 
 
 class InfoSQLController(http.Controller):
 
     @http.route('/info_sql', type='http', auth='public', methods=['POST'], csrf=False)
     def info_sql(self, **kwargs):
-        # Lấy raw body
         try:
             data = request.httprequest.get_data().decode('utf-8')
             payloads = json.loads(data)
@@ -20,6 +20,7 @@ class InfoSQLController(http.Controller):
         if not isinstance(payloads, list):
             payloads = [payloads]
 
+        today = date.today()
         results = []
         for payload in payloads:
             db_name = payload.get('database_name')
@@ -34,24 +35,58 @@ class InfoSQLController(http.Controller):
             table_ids = []
             row_count_ids = []
 
-            # Tạo schema info
+            # === Schema Info ===
             for s in schema_info:
-                table_rec = request.env['table.sql'].sudo().create({
-                    'name_table': s.get('TableName'),
-                    'column_name': s.get('ColumnName'),
-                    'data_type': s.get('DataType'),
-                })
-                table_ids.append(table_rec.id)
+                table_name = s.get('TableName')
+                col_name = s.get('ColumnName')
+                data_type = s.get('DataType')
 
-            # Tạo row counts
+                existing = request.env['table.sql'].sudo().search([
+                    ('database_id', '=', db_rec.id),
+                    ('name_table', '=', table_name),
+                    ('column_name', '=', col_name),
+                    ('record_date', '=', today),
+                ], limit=1)
+
+                if existing:
+                    existing.write({
+                        'data_type': data_type,
+                    })
+                    table_ids.append(existing.id)
+                else:
+                    table_rec = request.env['table.sql'].sudo().create({
+                        'name_table': table_name,
+                        'column_name': col_name,
+                        'data_type': data_type,
+                        'record_date': today,
+                        'database_id': db_rec.id,
+                    })
+                    table_ids.append(table_rec.id)
+
+            # === Row Counts ===
             for r in row_counts:
-                row_rec = request.env['sum.record.sql'].sudo().create({
-                    'name_table': r.get('TableName'),
-                    'sum_record': r.get('TotalRows'),
-                })
-                row_count_ids.append(row_rec.id)
+                table_name = r.get('TableName')
+                total_rows = r.get('TotalRows')
 
-            # Gắn Many2many (append, không xóa cũ)
+                existing = request.env['sum.record.sql'].sudo().search([
+                    ('database_id', '=', db_rec.id),
+                    ('name_table', '=', table_name),
+                    ('record_date', '=', today),
+                ], limit=1)
+
+                if existing:
+                    existing.write({'sum_record': total_rows})
+                    row_count_ids.append(existing.id)
+                else:
+                    row_rec = request.env['sum.record.sql'].sudo().create({
+                        'name_table': table_name,
+                        'sum_record': total_rows,
+                        'record_date': today,
+                        'database_id': db_rec.id,
+                    })
+                    row_count_ids.append(row_rec.id)
+
+            # Gắn Many2many
             if table_ids:
                 db_rec.write({'table_ids': [(4, tid) for tid in table_ids]})
             if row_count_ids:
@@ -59,8 +94,8 @@ class InfoSQLController(http.Controller):
 
             results.append({
                 "database": db_name,
-                "added_tables": len(table_ids),
-                "added_rows": len(row_count_ids),
+                "updated_tables": len(table_ids),
+                "updated_rows": len(row_count_ids),
             })
 
         return request.make_json_response({"status": "success", "details": results})
