@@ -7,7 +7,6 @@
             <tree string="Databases">
                 <field name="name"/>
                 <field name="table_ids"/>
-                <field name="sum_record_ids"/>
             </tree>
         </field>
     </record>
@@ -22,19 +21,11 @@
                         <field name="name"/>
                     </group>
                     <notebook>
-                        <page string="Số tập dữ liệu">
-                            <field name="sum_record_ids">
-                                <tree editable="bottom">
-                                    <field name="name_table"/>
-                                    <field name="sum_record"/>
-                                    <field name="record_date"/>
-                                </tree>
-                            </field>
-                        </page>
                         <page string="Thông tin bảng">
                             <field name="table_ids">
                                 <tree editable="bottom">
                                     <field name="name_table"/>
+                                    <field name="sum_record"/>
                                     <field name="record_date"/>
                                 </tree>
                             </field>
@@ -52,6 +43,7 @@
         <field name="arch" type="xml">
             <tree string="Tables">
                 <field name="name_table"/>
+                <field name="sum_record"/>
                 <field name="record_date"/>
             </tree>
         </field>
@@ -66,6 +58,7 @@
                     <group>
                         <field name="name_table"/>
                         <field name="record_date"/>
+                        <field name="sum_record"/>
                     </group>
                     <notebook>
                         <page string="Thông tin bảng">
@@ -82,35 +75,6 @@
         </field>
     </record>
 
-
-    <!-- Sum Record SQL -->
-    <record id="view_sum_record_sql_tree" model="ir.ui.view">
-        <field name="name">sum.record.sql.tree</field>
-        <field name="model">sum.record.sql</field>
-        <field name="arch" type="xml">
-            <tree string="Row Counts">
-                <field name="name_table"/>
-                <field name="sum_record"/>
-                <field name="record_date"/>
-            </tree>
-        </field>
-    </record>
-
-    <record id="view_sum_record_sql_form" model="ir.ui.view">
-        <field name="name">sum.record.sql.form</field>
-        <field name="model">sum.record.sql</field>
-        <field name="arch" type="xml">
-            <form string="Row Count">
-                <sheet>
-                    <group>
-                        <field name="name_table"/>
-                        <field name="sum_record"/>
-                        <field name="record_date"/>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
         <!-- Actions -->
     <record id="action_database_sql" model="ir.actions.act_window">
         <field name="name">Databases</field>
@@ -124,17 +88,10 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <record id="action_sum_record_sql" model="ir.actions.act_window">
-        <field name="name">Row Counts</field>
-        <field name="res_model">sum.record.sql</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
     <!-- Menu Items -->
     <menuitem id="menu_info_sql_root" name="SQL Info" sequence="5" web_icon="info_sql,static/src/img/logo.png"/>
 
     <menuitem id="menu_database_sql" name="Databases" parent="menu_info_sql_root" action="action_database_sql"/>
     <menuitem id="menu_table_sql" name="Thông tin bảng" parent="menu_info_sql_root" action="action_table_sql"/>
-    <menuitem id="menu_sum_record_sql" name="Thông tin số tập dữ liệu" parent="menu_info_sql_root" action="action_sum_record_sql"/>
 
 </odoo>

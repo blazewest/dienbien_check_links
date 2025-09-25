@@ -25,18 +25,12 @@ class InfoSQLController(http.Controller):
             row_counts = payload.get('table_row_counts', [])
 
             table_ids = self._process_schema_info(db_rec, schema_info, today)
-            row_count_ids = self._process_row_counts(db_rec, row_counts, today)
-
-            # Gắn Many2many
-            if table_ids:
-                db_rec.write({'table_ids': [(4, tid) for tid in set(table_ids)]})
-            if row_count_ids:
-                db_rec.write({'sum_record_ids': [(4, rid) for rid in set(row_count_ids)]})
+            updated_tables = self._process_row_counts(db_rec, row_counts, today)
 
             results.append({
                 "database": db_rec.name,
                 "tables_processed": len(set(table_ids)),
-                "rows_processed": len(set(row_count_ids)),
+                "rows_updated": updated_tables,
             })
 
         return request.make_json_response({"status": "success", "details": results})
@@ -108,30 +102,31 @@ class InfoSQLController(http.Controller):
         return table_ids
 
     def _process_row_counts(self, db_rec, row_counts, today):
-        """Xử lý row_counts (tổng số dòng mỗi bảng)"""
-        row_count_ids = []
-        RowCount = request.env['sum.record.sql'].sudo()
+        """Cập nhật sum_record trực tiếp trong table.sql"""
+        updated = 0
+        Table = request.env['table.sql'].sudo()
 
         for r in row_counts:
             table_name = r.get('TableName')
             total_rows = r.get('TotalRows')
 
-            row_rec = RowCount.search([
+            table_rec = Table.search([
                 ('database_id', '=', db_rec.id),
                 ('name_table', '=', table_name),
                 ('record_date', '=', today),
             ], limit=1)
 
-            if row_rec:
-                row_rec.write({'sum_record': total_rows})
+            if table_rec:
+                table_rec.write({'sum_record': total_rows})
+                updated += 1
             else:
-                row_rec = RowCount.create({
+                # Nếu chưa có record table -> tạo mới (không có cột nào)
+                Table.create({
                     'name_table': table_name,
                     'sum_record': total_rows,
                     'record_date': today,
                     'database_id': db_rec.id,
                 })
+                updated += 1
 
-            row_count_ids.append(row_rec.id)
-
-        return row_count_ids
+        return updated
