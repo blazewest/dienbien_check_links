@@ -7,6 +7,7 @@ class InfoSQLController(http.Controller):
     def info_sql(self, **kwargs):
         # Lấy dữ liệu JSON gửi đến
         data = request.jsonrequest
+        print(data)
         return {
             "status": "success",
             "received": data
