@@ -24,13 +24,22 @@ class DatabaseSQL(models.Model):
 
 class TableSQL(models.Model):
     _name = 'table.sql'
-    _description = 'Table Schema Info'
+    _description = 'Table Info'
 
     name_table = fields.Char("Tên bảng", required=True)
-    column_name = fields.Char("Tên cột")
-    data_type = fields.Char("Kiểu dữ liệu")
     record_date = fields.Date("Ngày ghi nhận", default=fields.Date.context_today)
     database_id = fields.Many2one('database.sql', string="Database")
+
+    column_ids = fields.One2many('table.column.sql', 'table_id', string="Columns")
+
+
+class TableColumnSQL(models.Model):
+    _name = 'table.column.sql'
+    _description = 'Table Column Info'
+
+    column_name = fields.Char("Tên cột", required=True)
+    data_type = fields.Char("Kiểu dữ liệu")
+    table_id = fields.Many2one('table.sql', string="Table")
 
 
 class SumRecordSQL(models.Model):
