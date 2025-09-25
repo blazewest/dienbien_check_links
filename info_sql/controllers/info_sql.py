@@ -1,12 +1,22 @@
 from odoo import http
 from odoo.http import request
+import json
 
 
 class InfoSQLController(http.Controller):
 
-    @http.route('/info_sql', type='json', auth='public', methods=['POST'], csrf=False)
+    @http.route('/info_sql', type='http', auth='public', methods=['POST'], csrf=False)
     def info_sql(self, **kwargs):
-        payloads = request.jsonrequest
+        # Lấy raw body
+        try:
+            data = request.httprequest.get_data().decode('utf-8')
+            payloads = json.loads(data)
+        except Exception:
+            return request.make_json_response(
+                {"status": "error", "message": "Invalid JSON"},
+                status=400
+            )
+
         if not isinstance(payloads, list):
             payloads = [payloads]
 
@@ -41,12 +51,16 @@ class InfoSQLController(http.Controller):
                 })
                 row_count_ids.append(row_rec.id)
 
-            # Gắn Many2many (không xóa cái cũ, chỉ append thêm)
+            # Gắn Many2many (append, không xóa cũ)
             if table_ids:
                 db_rec.write({'table_ids': [(4, tid) for tid in table_ids]})
             if row_count_ids:
                 db_rec.write({'sum_record_ids': [(4, rid) for rid in row_count_ids]})
 
-            results.append({"database": db_name, "added_tables": len(table_ids), "added_rows": len(row_count_ids)})
+            results.append({
+                "database": db_name,
+                "added_tables": len(table_ids),
+                "added_rows": len(row_count_ids),
+            })
 
-        return {"status": "success", "details": results}
+        return request.make_json_response({"status": "success", "details": results})
