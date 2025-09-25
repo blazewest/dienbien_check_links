@@ -1,0 +1,143 @@
+<odoo>
+    <!-- Database SQL -->
+    <record id="view_database_sql_tree" model="ir.ui.view">
+        <field name="name">database.sql.tree</field>
+        <field name="model">database.sql</field>
+        <field name="arch" type="xml">
+            <tree string="Databases">
+                <field name="name"/>
+                <field name="table_ids"/>
+                <field name="sum_record_ids"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_database_sql_form" model="ir.ui.view">
+        <field name="name">database.sql.form</field>
+        <field name="model">database.sql</field>
+        <field name="arch" type="xml">
+            <form string="Database">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                    <notebook>
+                        <page string="Tables">
+                            <field name="table_ids">
+                                <tree editable="bottom">
+                                    <field name="name_table"/>
+                                    <field name="column_name"/>
+                                    <field name="data_type"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="name_table"/>
+                                        <field name="column_name"/>
+                                        <field name="data_type"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Row Counts">
+                            <field name="sum_record_ids">
+                                <tree editable="bottom">
+                                    <field name="name_table"/>
+                                    <field name="sum_record"/>
+                                </tree>
+                                <form>
+                                    <group>
+                                        <field name="name_table"/>
+                                        <field name="sum_record"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Table SQL -->
+    <record id="view_table_sql_tree" model="ir.ui.view">
+        <field name="name">table.sql.tree</field>
+        <field name="model">table.sql</field>
+        <field name="arch" type="xml">
+            <tree string="Tables">
+                <field name="name_table"/>
+                <field name="column_name"/>
+                <field name="data_type"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_table_sql_form" model="ir.ui.view">
+        <field name="name">table.sql.form</field>
+        <field name="model">table.sql</field>
+        <field name="arch" type="xml">
+            <form string="Table">
+                <sheet>
+                    <group>
+                        <field name="name_table"/>
+                        <field name="column_name"/>
+                        <field name="data_type"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sum Record SQL -->
+    <record id="view_sum_record_sql_tree" model="ir.ui.view">
+        <field name="name">sum.record.sql.tree</field>
+        <field name="model">sum.record.sql</field>
+        <field name="arch" type="xml">
+            <tree string="Row Counts">
+                <field name="name_table"/>
+                <field name="sum_record"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sum_record_sql_form" model="ir.ui.view">
+        <field name="name">sum.record.sql.form</field>
+        <field name="model">sum.record.sql</field>
+        <field name="arch" type="xml">
+            <form string="Row Count">
+                <sheet>
+                    <group>
+                        <field name="name_table"/>
+                        <field name="sum_record"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_info_sql_root" name="SQL Info" sequence="5" web_icon="info_sql,static/src/img/logo.png"/>
+
+    <menuitem id="menu_database_sql" name="Databases" parent="menu_info_sql_root" action="action_database_sql"/>
+    <menuitem id="menu_table_sql" name="Tables" parent="menu_info_sql_root" action="action_table_sql"/>
+    <menuitem id="menu_sum_record_sql" name="Row Counts" parent="menu_info_sql_root" action="action_sum_record_sql"/>
+
+    <!-- Actions -->
+    <record id="action_database_sql" model="ir.actions.act_window">
+        <field name="name">Databases</field>
+        <field name="res_model">database.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_table_sql" model="ir.actions.act_window">
+        <field name="name">Tables</field>
+        <field name="res_model">table.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_sum_record_sql" model="ir.actions.act_window">
+        <field name="name">Row Counts</field>
+        <field name="res_model">sum.record.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

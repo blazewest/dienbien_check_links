@@ -1,1 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_database_sql,access_database_sql,model_database_sql,,1,1,1,1
+access_table_sql,access_table_sql,model_table_sql,,1,1,1,1
+access_sum_record_sql,access_sum_record_sql,model_sum_record_sql,,1,1,1,1
