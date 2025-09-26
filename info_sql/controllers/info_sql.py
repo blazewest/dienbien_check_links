@@ -1,4 +1,4 @@
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
 import json
 from datetime import date
@@ -16,7 +16,9 @@ class InfoSQLController(http.Controller):
                 status=400
             )
 
-        today = date.today()
+        # DÙNG fields.Date.context_today để đảm bảo định dạng giống Odoo và tôn trọng timezone/context
+        today = fields.Date.context_today(request.env.user)  # -> 'YYYY-MM-DD' string
+
         results = []
 
         for payload in payloads:
@@ -58,44 +60,53 @@ class InfoSQLController(http.Controller):
         return db_rec
 
     def _process_schema_info(self, db_rec, schema_info, today):
-        """Xử lý schema_info (chỉ cập nhật columns cho database)"""
+        """Xử lý schema_info (tạo/cập nhật bảng theo ngày; columns lưu theo database)"""
         table_ids = []
         Table = request.env['table.sql'].sudo()
         Column = request.env['table.column.sql'].sudo()
+
+        # cache local: tránh search/create nhiều lần cho cùng 1 table trong 1 request
+        tables_cache = {}
 
         for s in schema_info:
             table_name = s.get('TableName')
             col_name = s.get('ColumnName')
             data_type = s.get('DataType')
 
-            # Tìm hoặc tạo table (theo ngày)
-            table_rec = Table.search([
-                ('database_id', '=', db_rec.id),
-                ('name_table', '=', table_name),
-                ('record_date', '=', today),
-            ], limit=1)
+            if not table_name:
+                continue
 
+            # lấy từ cache trước
+            table_rec = tables_cache.get(table_name)
             if not table_rec:
-                table_rec = Table.create({
-                    'name_table': table_name,
-                    'record_date': today,
-                    'database_id': db_rec.id,
-                })
+                table_rec = Table.search([
+                    ('database_id', '=', db_rec.id),
+                    ('name_table', '=', table_name),
+                    ('record_date', '=', today),
+                ], limit=1)
+                if not table_rec:
+                    table_rec = Table.create({
+                        'name_table': table_name,
+                        'record_date': today,
+                        'database_id': db_rec.id,
+                    })
+                tables_cache[table_name] = table_rec
 
-            # Tìm hoặc tạo column (theo database, không theo ngày)
-            col_rec = Column.search([
-                ('database_id', '=', db_rec.id),
-                ('column_name', '=', col_name),
-            ], limit=1)
+            # Columns: lưu/cập nhật theo database (không theo ngày)
+            if col_name:
+                col_rec = Column.search([
+                    ('database_id', '=', db_rec.id),
+                    ('column_name', '=', col_name),
+                ], limit=1)
 
-            if col_rec:
-                col_rec.write({'data_type': data_type})
-            else:
-                Column.create({
-                    'column_name': col_name,
-                    'data_type': data_type,
-                    'database_id': db_rec.id,
-                })
+                if col_rec:
+                    col_rec.write({'data_type': data_type})
+                else:
+                    Column.create({
+                        'column_name': col_name,
+                        'data_type': data_type,
+                        'database_id': db_rec.id,
+                    })
 
             table_ids.append(table_rec.id)
 
@@ -106,27 +117,37 @@ class InfoSQLController(http.Controller):
         updated = 0
         Table = request.env['table.sql'].sudo()
 
+        # cache table records by name to giảm search
+        table_cache = {}
+
         for r in row_counts:
             table_name = r.get('TableName')
             total_rows = r.get('TotalRows')
 
-            table_rec = Table.search([
-                ('database_id', '=', db_rec.id),
-                ('name_table', '=', table_name),
-                ('record_date', '=', today),
-            ], limit=1)
+            if not table_name:
+                continue
+
+            table_rec = table_cache.get(table_name)
+            if not table_rec:
+                table_rec = Table.search([
+                    ('database_id', '=', db_rec.id),
+                    ('name_table', '=', table_name),
+                    ('record_date', '=', today),
+                ], limit=1)
 
             if table_rec:
-                table_rec.write({'sum_record': total_rows})
+                table_rec.write({'sum_record': total_rows or 0})
                 updated += 1
+                table_cache[table_name] = table_rec
             else:
-                # Nếu chưa có record table -> tạo mới (không có cột nào)
-                Table.create({
+                # tạo mới nếu chưa có
+                new_rec = Table.create({
                     'name_table': table_name,
-                    'sum_record': total_rows,
+                    'sum_record': total_rows or 0,
                     'record_date': today,
                     'database_id': db_rec.id,
                 })
+                table_cache[table_name] = new_rec
                 updated += 1
 
         return updated

@@ -19,7 +19,9 @@
             <form string="Database">
                 <sheet>
                     <group>
+                        <field name="name_database"/>
                         <field name="name"/>
+                        <field name="telegraf_data_id"/>
                     </group>
                     <notebook>
                         <page string="Thông tin bảng">
@@ -34,6 +36,7 @@
                         <page string="Cấu trúc bảng">
                             <field name="column_ids">
                                 <tree editable="bottom">
+                                    <field name="database_id"/>
                                     <field name="column_name"/>
                                     <field name="data_type"/>
                                 </tree>

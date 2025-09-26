@@ -5,9 +5,9 @@ class DatabaseSQL(models.Model):
     _name = 'database.sql'
     _description = 'Database SQL'
 
-    name_database = fields.Char("Database")
+    name_database = fields.Char("Tên Database")
     telegraf_data_id = fields.Many2one('telegraf.data', string="Telegraf Data")
-    name = fields.Char("Tên database", required=True)
+    name = fields.Char("Database", required=True)
     table_ids = fields.One2many('table.sql', 'database_id', string="Tables" )
     column_ids = fields.One2many( 'table.column.sql', 'database_id', string="Columns")
 
