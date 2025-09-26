@@ -131,8 +131,8 @@
         <field name="model">table.sql</field>
         <field name="arch" type="xml">
             <graph string="Thống kê dữ liệu theo ngày" type="line">
-                <!-- Trục X: ngày -->
-                <field name="record_date" type="row"/>
+                <!-- Trục X: ngày (theo ngày, không theo tháng) -->
+                <field name="record_date" type="row" interval="day"/>
                 <!-- Nhóm theo tên bảng -->
                 <field name="name_table" type="col"/>
                 <!-- Giá trị Y: tổng số dữ liệu -->
@@ -140,6 +140,7 @@
             </graph>
         </field>
     </record>
+
 
     <!-- Menu Items -->
     <menuitem id="menu_info_sql_root" name="SQL Info" sequence="5" web_icon="info_sql,static/src/img/logo.png"/>
