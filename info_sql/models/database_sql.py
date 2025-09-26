@@ -5,12 +5,11 @@ class DatabaseSQL(models.Model):
     _name = 'database.sql'
     _description = 'Database SQL'
 
+    name_database = fields.Char("Database")
+    telegraf_data_id = fields.Many2one('telegraf.data', string="Telegraf Data")
     name = fields.Char("Tên database", required=True)
-    table_ids = fields.One2many(
-        'table.sql',
-        'database_id',
-        string="Tables"
-    )
+    table_ids = fields.One2many('table.sql', 'database_id', string="Tables" )
+    column_ids = fields.One2many( 'table.column.sql', 'database_id', string="Columns")
 
 
 class TableSQL(models.Model):
@@ -19,10 +18,8 @@ class TableSQL(models.Model):
 
     name_table = fields.Char("Tên bảng", required=True)
     record_date = fields.Date("Ngày ghi nhận", default=fields.Date.context_today)
-    sum_record = fields.Integer("Tổng số dữ liệu")   # thay cho sum.record.sql
+    sum_record = fields.Integer("Tổng số dữ liệu")
     database_id = fields.Many2one('database.sql', string="Database")
-
-    column_ids = fields.One2many('table.column.sql', 'table_id', string="Columns")
 
 
 class TableColumnSQL(models.Model):
@@ -31,4 +28,4 @@ class TableColumnSQL(models.Model):
 
     column_name = fields.Char("Tên cột", required=True)
     data_type = fields.Char("Kiểu dữ liệu")
-    table_id = fields.Many2one('table.sql', string="Table")
+    database_id = fields.Many2one('database.sql', string="Database")

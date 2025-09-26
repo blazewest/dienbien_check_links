@@ -58,7 +58,7 @@ class InfoSQLController(http.Controller):
         return db_rec
 
     def _process_schema_info(self, db_rec, schema_info, today):
-        """Xử lý schema_info (bảng + cột)"""
+        """Xử lý schema_info (chỉ cập nhật columns cho database)"""
         table_ids = []
         Table = request.env['table.sql'].sudo()
         Column = request.env['table.column.sql'].sudo()
@@ -82,9 +82,9 @@ class InfoSQLController(http.Controller):
                     'database_id': db_rec.id,
                 })
 
-            # Tìm hoặc tạo column
+            # Tìm hoặc tạo column (theo database, không theo ngày)
             col_rec = Column.search([
-                ('table_id', '=', table_rec.id),
+                ('database_id', '=', db_rec.id),
                 ('column_name', '=', col_name),
             ], limit=1)
 
@@ -94,7 +94,7 @@ class InfoSQLController(http.Controller):
                 Column.create({
                     'column_name': col_name,
                     'data_type': data_type,
-                    'table_id': table_rec.id,
+                    'database_id': db_rec.id,
                 })
 
             table_ids.append(table_rec.id)

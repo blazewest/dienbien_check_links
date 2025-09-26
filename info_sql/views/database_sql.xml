@@ -7,6 +7,7 @@
             <tree string="Databases">
                 <field name="name"/>
                 <field name="table_ids"/>
+                <field name="column_ids"/>
             </tree>
         </field>
     </record>
@@ -30,6 +31,14 @@
                                 </tree>
                             </field>
                         </page>
+                        <page string="Cấu trúc bảng">
+                            <field name="column_ids">
+                                <tree editable="bottom">
+                                    <field name="column_name"/>
+                                    <field name="data_type"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
             </form>
@@ -42,6 +51,7 @@
         <field name="model">table.sql</field>
         <field name="arch" type="xml">
             <tree string="Tables">
+                <field name="database_id"/>
                 <field name="name_table"/>
                 <field name="sum_record"/>
                 <field name="record_date"/>
@@ -56,20 +66,39 @@
             <form string="Table">
                 <sheet>
                     <group>
+                        <field name="database_id"/>
                         <field name="name_table"/>
                         <field name="record_date"/>
                         <field name="sum_record"/>
                     </group>
-                    <notebook>
-                        <page string="Thông tin bảng">
-                            <field name="column_ids">
-                                <tree editable="bottom">
-                                    <field name="column_name"/>
-                                    <field name="data_type"/>
-                                </tree>
-                            </field>
-                        </page>
-                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_table_column_sql_tree" model="ir.ui.view">
+        <field name="name">table.column.sql.tree</field>
+        <field name="model">table.column.sql</field>
+        <field name="arch" type="xml">
+            <tree string="Tables">
+                <field name="database_id"/>
+                <field name="column_name"/>
+                <field name="data_type"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_table_column_sql_form" model="ir.ui.view">
+        <field name="name">table.column.sql.form</field>
+        <field name="model">table.column.sql</field>
+        <field name="arch" type="xml">
+            <form string="Table">
+                <sheet>
+                    <group>
+                        <field name="database_id"/>
+                        <field name="column_name"/>
+                        <field name="data_type"/>
+                    </group>
                 </sheet>
             </form>
         </field>
@@ -79,6 +108,12 @@
     <record id="action_database_sql" model="ir.actions.act_window">
         <field name="name">Databases</field>
         <field name="res_model">database.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_table_column_sql" model="ir.actions.act_window">
+        <field name="name">Tables column</field>
+        <field name="res_model">table.column.sql</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -108,5 +143,6 @@
 
     <menuitem id="menu_database_sql" name="Databases" parent="menu_info_sql_root" action="action_database_sql"/>
     <menuitem id="menu_table_sql" name="Thông tin bảng" parent="menu_info_sql_root" action="action_table_sql"/>
+    <menuitem id="menu_table_column_sql" name="Cấu trúc bảng" parent="menu_info_sql_root" action="action_table_column_sql"/>
 
 </odoo>
