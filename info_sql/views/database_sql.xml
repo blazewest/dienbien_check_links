@@ -41,7 +41,7 @@
                         <page string="Cấu trúc bảng">
                             <field name="column_ids">
                                 <tree editable="bottom">
-                                    <field name="database_id"/>
+                                    <field name="name_table"/>
                                     <field name="column_name"/>
                                     <field name="data_type"/>
                                 </tree>
@@ -89,6 +89,7 @@
         <field name="model">table.column.sql</field>
         <field name="arch" type="xml">
             <tree string="Tables">
+                <field name="name_table"/>
                 <field name="database_id"/>
                 <field name="column_name"/>
                 <field name="data_type"/>
@@ -103,6 +104,7 @@
             <form string="Table">
                 <sheet>
                     <group>
+                        <field name="name_table" readonly="1"/>
                         <field name="database_id" readonly="1"/>
                         <field name="column_name" readonly="1"/>
                         <field name="data_type" readonly="1"/>

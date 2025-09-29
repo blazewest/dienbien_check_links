@@ -120,6 +120,7 @@ class InfoSQLController(http.Controller):
                 col_rec = Column.search([
                     ('database_id', '=', db_rec.id),
                     ('column_name', '=', col_name),
+                    ('name_table', '=', table_name),  # ✅ thêm điều kiện name_table
                 ], limit=1)
 
                 if col_rec:
@@ -129,6 +130,7 @@ class InfoSQLController(http.Controller):
                         'column_name': col_name,
                         'data_type': data_type,
                         'database_id': db_rec.id,
+                        'name_table': table_name,  # ✅ lưu luôn tên bảng
                     })
 
             table_ids.append(table_rec.id)

@@ -29,6 +29,7 @@ class TableColumnSQL(models.Model):
     _name = 'table.column.sql'
     _description = 'Table Column Info'
 
+    name_table = fields.Char("Tên bảng")
     column_name = fields.Char("Tên cột", required=True)
     data_type = fields.Char("Kiểu dữ liệu")
     database_id = fields.Many2one('database.sql', string="Database")
