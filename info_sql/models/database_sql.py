@@ -21,7 +21,7 @@ class TableSQL(models.Model):
 
     name_table = fields.Char("Tên bảng", required=True)
     record_date = fields.Date("Ngày ghi nhận", default=fields.Date.context_today)
-    sum_record = fields.Integer("Tổng số dữ liệu")
+    sum_record = fields.Integer("Tổng số dữ liệu", default=0)
     database_id = fields.Many2one('database.sql', string="Database")
 
 
