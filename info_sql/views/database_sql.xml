@@ -5,10 +5,11 @@
         <field name="model">database.sql</field>
         <field name="arch" type="xml">
             <tree string="Databases">
+                <field name="name_database"/>
                 <field name="name"/>
                 <field name="table_ids"/>
                 <field name="column_ids"/>
-                <field name="partner_ids"/>
+                <field name="partner_ids" widget="many2many_tags"/>
             </tree>
         </field>
     </record>
@@ -23,7 +24,7 @@
                         <field name="name_database"/>
                         <field name="name"/>
                         <field name="telegraf_data_id"/>
-                        <field name="partner_ids"/>
+                        <field name="partner_ids" widget="many2many_tags"/>
                     </group>
                     <notebook>
                         <page string="Thông tin bảng">
