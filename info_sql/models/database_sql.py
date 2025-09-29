@@ -17,7 +17,7 @@ class DatabaseSQL(models.Model):
 class TableSQL(models.Model):
     _name = 'table.sql'
     _description = 'Table Info'
-    _order = 'record_date desc, id desc'
+    _order = 'record_date desc, sum_record desc, id desc'
 
     name_table = fields.Char("Tên bảng", required=True)
     record_date = fields.Date("Ngày ghi nhận", default=fields.Date.context_today)
