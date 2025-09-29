@@ -14,6 +14,7 @@ class DatabaseSQL(models.Model):
     partner_ids = fields.Many2many(comodel_name='res.partner', string='Người phụ trách', required=False)
 
 
+
 class TableSQL(models.Model):
     _name = 'table.sql'
     _description = 'Table Info'
@@ -33,3 +34,10 @@ class TableColumnSQL(models.Model):
     column_name = fields.Char("Tên cột", required=True)
     data_type = fields.Char("Kiểu dữ liệu")
     database_id = fields.Many2one('database.sql', string="Database")
+
+    _sql_constraints = [
+        ('unique_column_per_table',
+         'unique(database_id, name_table, column_name)',
+         'Mỗi bảng chỉ được có một column với tên này!')
+    ]
+
