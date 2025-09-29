@@ -125,8 +125,6 @@
                 <field name="record_date" type="col"/>
                 <!-- Số liệu cần thống kê -->
                 <field name="sum_record" type="measure"/>
-                <!-- Đếm số bảng -->
-                <field name="id" type="measure"/>
             </pivot>
         </field>
     </record>
