@@ -7,6 +7,7 @@
             <tree string="Databases">
                 <field name="name_database"/>
                 <field name="name"/>
+                <field name="sql_seversql"/>
                 <field name="table_ids"/>
                 <field name="column_ids"/>
                 <field name="partner_ids" widget="many2many_tags"/>
@@ -23,6 +24,7 @@
                     <group>
                         <field name="name_database"/>
                         <field name="name"/>
+                        <field name="sql_seversql"/>
                         <field name="telegraf_data_id"/>
                         <field name="partner_ids" widget="many2many_tags"/>
                     </group>
