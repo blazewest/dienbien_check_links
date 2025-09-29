@@ -1,8 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ip_wan,ip.wan,model_ip_wan,base.group_user,1,1,1,1
-access_qrcode,qr.code.generator,model_qr_code_generator,base.group_user,1,1,1,1
-
-
 access_telegraf,telegraf.data,model_telegraf_data,base.group_user,1,1,1,1
 access_telegraf_disk,telegraf.disk,model_telegraf_disk,base.group_user,1,1,1,1
 access_telegraf_http_response,telegraf.http_response,model_telegraf_http_response,base.group_user,1,1,1,1
