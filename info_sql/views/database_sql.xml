@@ -8,6 +8,7 @@
                 <field name="name"/>
                 <field name="table_ids"/>
                 <field name="column_ids"/>
+                <field name="partner_ids"/>
             </tree>
         </field>
     </record>
@@ -22,6 +23,7 @@
                         <field name="name_database"/>
                         <field name="name"/>
                         <field name="telegraf_data_id"/>
+                        <field name="partner_ids"/>
                     </group>
                     <notebook>
                         <page string="Thông tin bảng">

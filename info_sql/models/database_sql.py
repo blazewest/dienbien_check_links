@@ -6,10 +6,12 @@ class DatabaseSQL(models.Model):
     _description = 'Database SQL'
 
     name_database = fields.Char("Tên Database")
+    sql_seversql = fields.Char("Phiên bản SQL Server")
     telegraf_data_id = fields.Many2one('telegraf.data', string="Telegraf Data")
     name = fields.Char("Database", required=True)
     table_ids = fields.One2many('table.sql', 'database_id', string="Tables" )
     column_ids = fields.One2many( 'table.column.sql', 'database_id', string="Columns")
+    partner_ids = fields.Many2many(comodel_name='res.partner', string='Người phụ trách', required=False)
 
 
 class TableSQL(models.Model):

@@ -1,7 +1,6 @@
 from odoo import http, fields
 from odoo.http import request
 import json
-from datetime import date
 
 
 class InfoSQLController(http.Controller):
@@ -16,13 +15,16 @@ class InfoSQLController(http.Controller):
                 status=400
             )
 
-        # DÙNG fields.Date.context_today để đảm bảo định dạng giống Odoo và tôn trọng timezone/context
-        today = fields.Date.context_today(request.env.user)  # -> 'YYYY-MM-DD' string
+        today = fields.Date.context_today(request.env.user)
 
         results = []
 
         for payload in payloads:
-            db_rec = self._get_or_create_database(payload.get('database_name'))
+            db_rec = self._get_or_create_database(
+                db_name=payload.get('database_name'),
+                sql_server=payload.get('sql_sever'),
+                host=payload.get('host'),
+            )
             schema_info = payload.get('schema_info', [])
             row_counts = payload.get('table_row_counts', [])
 
@@ -52,11 +54,32 @@ class InfoSQLController(http.Controller):
         except Exception:
             return None
 
-    def _get_or_create_database(self, db_name):
-        """Tìm hoặc tạo database"""
-        db_rec = request.env['database.sql'].sudo().search([('name', '=', db_name)], limit=1)
-        if not db_rec:
-            db_rec = request.env['database.sql'].sudo().create({'name': db_name})
+    def _get_or_create_database(self, db_name, sql_server, host):
+        """Tìm hoặc tạo database.sql theo name + sql_seversql + telegraf_data_id.host"""
+        Database = request.env['database.sql'].sudo()
+
+        db_rec = Database.search([
+            ('name', '=', db_name),
+            ('sql_seversql', '=', sql_server),
+            ('telegraf_data_id.host', '=', host),
+        ], limit=1)
+
+        if db_rec:
+            # cập nhật nếu có thay đổi
+            db_rec.write({
+                'name': db_name,
+                'sql_seversql': sql_server,
+            })
+        else:
+            # tìm telegraf.data có host phù hợp
+            telegraf_rec = request.env['telegraf.data'].sudo().search([('host', '=', host)], limit=1)
+
+            db_rec = Database.create({
+                'name': db_name,
+                'sql_seversql': sql_server,
+                'telegraf_data_id': telegraf_rec.id if telegraf_rec else False,
+            })
+
         return db_rec
 
     def _process_schema_info(self, db_rec, schema_info, today):
@@ -65,7 +88,6 @@ class InfoSQLController(http.Controller):
         Table = request.env['table.sql'].sudo()
         Column = request.env['table.column.sql'].sudo()
 
-        # cache local: tránh search/create nhiều lần cho cùng 1 table trong 1 request
         tables_cache = {}
 
         for s in schema_info:
@@ -76,14 +98,17 @@ class InfoSQLController(http.Controller):
             if not table_name:
                 continue
 
-            # lấy từ cache trước
+            # --- xử lý bảng ---
             table_rec = tables_cache.get(table_name)
             if not table_rec:
                 table_rec = Table.search([
-                    ('database_id', '=', db_rec.id),
+                    ('database_id.sql_seversql', '=', db_rec.sql_seversql),
+                    ('database_id.telegraf_data_id.host', '=', db_rec.telegraf_data_id.host),
+                    ('database_id.name', '=', db_rec.name),
                     ('name_table', '=', table_name),
                     ('record_date', '=', today),
                 ], limit=1)
+
                 if not table_rec:
                     table_rec = Table.create({
                         'name_table': table_name,
@@ -92,10 +117,12 @@ class InfoSQLController(http.Controller):
                     })
                 tables_cache[table_name] = table_rec
 
-            # Columns: lưu/cập nhật theo database (không theo ngày)
+            # --- xử lý column ---
             if col_name:
                 col_rec = Column.search([
-                    ('database_id', '=', db_rec.id),
+                    ('database_id.sql_seversql', '=', db_rec.sql_seversql),
+                    ('database_id.telegraf_data_id.host', '=', db_rec.telegraf_data_id.host),
+                    ('database_id.name', '=', db_rec.name),
                     ('column_name', '=', col_name),
                 ], limit=1)
 
@@ -113,11 +140,9 @@ class InfoSQLController(http.Controller):
         return table_ids
 
     def _process_row_counts(self, db_rec, row_counts, today):
-        """Cập nhật sum_record trực tiếp trong table.sql"""
+        """Cập nhật sum_record trực tiếp trong table.sql (theo db, host, name, table)"""
         updated = 0
         Table = request.env['table.sql'].sudo()
-
-        # cache table records by name to giảm search
         table_cache = {}
 
         for r in row_counts:
@@ -127,27 +152,35 @@ class InfoSQLController(http.Controller):
             if not table_name:
                 continue
 
-            table_rec = table_cache.get(table_name)
+            # cache theo key phức hợp
+            cache_key = (db_rec.sql_seversql, db_rec.telegraf_data_id.host, db_rec.name, table_name)
+
+            table_rec = table_cache.get(cache_key)
             if not table_rec:
                 table_rec = Table.search([
                     ('database_id', '=', db_rec.id),
                     ('name_table', '=', table_name),
                     ('record_date', '=', today),
+                    ('sql_seversql', '=', db_rec.sql_seversql),
+                    ('host', '=', db_rec.telegraf_data_id.host),
+                    ('db_name', '=', db_rec.name),
                 ], limit=1)
 
             if table_rec:
                 table_rec.write({'sum_record': total_rows or 0})
-                updated += 1
-                table_cache[table_name] = table_rec
+                table_cache[cache_key] = table_rec
             else:
-                # tạo mới nếu chưa có
                 new_rec = Table.create({
                     'name_table': table_name,
                     'sum_record': total_rows or 0,
                     'record_date': today,
                     'database_id': db_rec.id,
+                    'sql_seversql': db_rec.sql_seversql,
+                    'host': db_rec.telegraf_data_id.host,
+                    'db_name': db_rec.name,
                 })
-                table_cache[table_name] = new_rec
-                updated += 1
+                table_cache[cache_key] = new_rec
+            updated += 1
 
         return updated
+
