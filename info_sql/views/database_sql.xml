@@ -114,23 +114,21 @@
         </field>
     </record>
 
-        <!-- Actions -->
-    <record id="action_database_sql" model="ir.actions.act_window">
-        <field name="name">Databases</field>
-        <field name="res_model">database.sql</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
-    <record id="action_table_column_sql" model="ir.actions.act_window">
-        <field name="name">Tables column</field>
-        <field name="res_model">table.column.sql</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
-    <record id="action_table_sql" model="ir.actions.act_window">
-        <field name="name">Tables</field>
-        <field name="res_model">table.sql</field>
-        <field name="view_mode">tree,form,graph</field>
+    <record id="view_table_sql_pivot" model="ir.ui.view">
+        <field name="name">table.sql.pivot</field>
+        <field name="model">table.sql</field>
+        <field name="arch" type="xml">
+            <pivot string="Thống kê Table SQL">
+                <!-- Group theo Database -->
+                <field name="database_id" type="row"/>
+                <!-- Group theo Ngày -->
+                <field name="record_date" type="col"/>
+                <!-- Số liệu cần thống kê -->
+                <field name="sum_record" type="measure"/>
+                <!-- Đếm số bảng -->
+                <field name="id" type="measure"/>
+            </pivot>
+        </field>
     </record>
 
     <record id="view_table_sql_graph" model="ir.ui.view">
@@ -147,6 +145,27 @@
             </graph>
         </field>
     </record>
+
+        <!-- Actions -->
+    <record id="action_database_sql" model="ir.actions.act_window">
+        <field name="name">Databases</field>
+        <field name="res_model">database.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_table_column_sql" model="ir.actions.act_window">
+        <field name="name">Tables column</field>
+        <field name="res_model">table.column.sql</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="action_table_sql" model="ir.actions.act_window">
+        <field name="name">Tables</field>
+        <field name="res_model">table.sql</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
+    </record>
+
+
 
 
     <!-- Menu Items -->
