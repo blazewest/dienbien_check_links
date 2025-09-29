@@ -23,9 +23,9 @@
                 <sheet>
                     <group>
                         <field name="name_database"/>
-                        <field name="name"/>
-                        <field name="sql_seversql"/>
-                        <field name="telegraf_data_id"/>
+                        <field name="name" readonly="1"/>
+                        <field name="sql_seversql" readonly="1"/>
+                        <field name="telegraf_data_id" readonly="1"/>
                         <field name="partner_ids" widget="many2many_tags"/>
                     </group>
                     <notebook>
@@ -74,10 +74,10 @@
             <form string="Table">
                 <sheet>
                     <group>
-                        <field name="database_id"/>
-                        <field name="name_table"/>
-                        <field name="record_date"/>
-                        <field name="sum_record"/>
+                        <field name="database_id" readonly="1"/>
+                        <field name="name_table" readonly="1"/>
+                        <field name="record_date" readonly="1"/>
+                        <field name="sum_record" readonly="1"/>
                     </group>
                 </sheet>
             </form>
@@ -103,9 +103,9 @@
             <form string="Table">
                 <sheet>
                     <group>
-                        <field name="database_id"/>
-                        <field name="column_name"/>
-                        <field name="data_type"/>
+                        <field name="database_id" readonly="1"/>
+                        <field name="column_name" readonly="1"/>
+                        <field name="data_type" readonly="1"/>
                     </group>
                 </sheet>
             </form>
