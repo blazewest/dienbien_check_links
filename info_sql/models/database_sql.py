@@ -4,6 +4,7 @@ from odoo import models, fields
 class DatabaseSQL(models.Model):
     _name = 'database.sql'
     _description = 'Database SQL'
+    _rec_name = 'name_database'
 
     name_database = fields.Char("Tên Database")
     sql_seversql = fields.Char("Phiên bản SQL Server")
