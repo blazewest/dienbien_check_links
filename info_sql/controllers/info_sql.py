@@ -102,9 +102,7 @@ class InfoSQLController(http.Controller):
             table_rec = tables_cache.get(table_name)
             if not table_rec:
                 table_rec = Table.search([
-                    ('database_id.sql_seversql', '=', db_rec.sql_seversql),
-                    ('database_id.telegraf_data_id.host', '=', db_rec.telegraf_data_id.host),
-                    ('database_id.name', '=', db_rec.name),
+                    ('database_id', '=', db_rec.id),
                     ('name_table', '=', table_name),
                     ('record_date', '=', today),
                 ], limit=1)
@@ -120,9 +118,7 @@ class InfoSQLController(http.Controller):
             # --- xử lý column ---
             if col_name:
                 col_rec = Column.search([
-                    ('database_id.sql_seversql', '=', db_rec.sql_seversql),
-                    ('database_id.telegraf_data_id.host', '=', db_rec.telegraf_data_id.host),
-                    ('database_id.name', '=', db_rec.name),
+                    ('database_id', '=', db_rec.id),
                     ('column_name', '=', col_name),
                 ], limit=1)
 
@@ -152,8 +148,8 @@ class InfoSQLController(http.Controller):
             if not table_name:
                 continue
 
-            # cache theo key phức hợp
-            cache_key = (db_rec.sql_seversql, db_rec.telegraf_data_id.host, db_rec.name, table_name)
+            # cache theo key (db_id + table_name + date)
+            cache_key = (db_rec.id, table_name, today)
 
             table_rec = table_cache.get(cache_key)
             if not table_rec:
@@ -161,9 +157,6 @@ class InfoSQLController(http.Controller):
                     ('database_id', '=', db_rec.id),
                     ('name_table', '=', table_name),
                     ('record_date', '=', today),
-                    ('sql_seversql', '=', db_rec.sql_seversql),
-                    ('host', '=', db_rec.telegraf_data_id.host),
-                    ('db_name', '=', db_rec.name),
                 ], limit=1)
 
             if table_rec:
@@ -175,12 +168,10 @@ class InfoSQLController(http.Controller):
                     'sum_record': total_rows or 0,
                     'record_date': today,
                     'database_id': db_rec.id,
-                    'sql_seversql': db_rec.sql_seversql,
-                    'host': db_rec.telegraf_data_id.host,
-                    'db_name': db_rec.name,
                 })
                 table_cache[cache_key] = new_rec
             updated += 1
 
         return updated
+
 
