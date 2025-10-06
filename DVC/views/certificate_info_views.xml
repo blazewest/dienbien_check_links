@@ -1,0 +1,56 @@
+<odoo>
+    <!-- Menu cha (nếu module bạn chưa có menu riêng) -->
+
+
+    <!-- Tree view -->
+    <record id="view_certificate_info_tree" model="ir.ui.view">
+        <field name="name">certificate.info.tree</field>
+        <field name="model">certificate.info</field>
+        <field name="arch" type="xml">
+            <tree string="Danh sách Chứng Thư Số">
+                <field name="name"/>
+                <field name="loai_cts"/>
+                <field name="to_chuc"/>
+                <field name="to_chuc_phuong"/>
+                <field name="to_chuc_truong"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_certificate_info_form" model="ir.ui.view">
+        <field name="name">certificate.info.form</field>
+        <field name="model">certificate.info</field>
+        <field name="arch" type="xml">
+            <form string="Chi tiết Chứng Thư Số">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="loai_cts"/>
+                        <field name="to_chuc"/>
+                        <field name="to_chuc_phuong"/>
+                        <field name="to_chuc_truong"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_certificate_info" model="ir.actions.act_window">
+        <field name="name">Chứng Thư Số</field>
+        <field name="res_model">certificate.info</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_certificate_root"
+              name="Chứng Thư Số"
+              sequence="10"/>
+
+    <!-- Menu con -->
+    <menuitem id="menu_certificate_info"
+              name="Danh sách CTS"
+              parent="menu_certificate_root"
+              action="action_certificate_info"/>
+
+</odoo>
